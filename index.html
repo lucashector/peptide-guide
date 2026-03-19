@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuvita — Saúde guiada com peptídeos</title>
+<meta name="description" content="Diagnóstico personalizado, protocolo sob medida e acompanhamento contínuo. Peptídeos com clareza e segurança para todos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --green-deep:#1A3D2E;
+  --green-mid:#2F6B50;
+  --green-light:#6ECFA0;
+  --green-pale:#D4F0E3;
+  --green-ghost:#EDF8F3;
+  --cream:#F5F2ED;
+  --cream-dark:#EDE8E1;
+  --amber:#E8A94B;
+  --amber-pale:#FBF0DA;
+  --text:#1A1A18;
+  --text-mid:#4A4A46;
+  --text-soft:#888880;
+  --white:#FFFFFF;
+  --border:rgba(26,61,46,0.12);
+  --border-light:rgba(26,61,46,0.07);
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s ease}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}
+.reveal-delay-4{transition-delay:0.4s}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 2rem;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(245,242,237,0.88);
+  backdrop-filter:blur(14px);
+  border-bottom:0.5px solid var(--border);
+  transition:background 0.3s;
+}
+
+.nav-logo{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+}
+
+.nav-logo-mark{
+  width:34px;height:34px;
+  background:var(--green-deep);
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+
+.nav-logo-text{
+  font-family:'Fraunces',serif;
+  font-size:1.35rem;
+  font-weight:600;
+  color:var(--green-deep);
+  letter-spacing:-0.01em;
+}
+
+.nav-links{
+  display:flex;align-items:center;gap:2rem;
+  list-style:none;
+}
+
+.nav-links a{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text-mid);
+  text-decoration:none;
+  transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--green-deep)}
+
+.nav-cta{
+  background:var(--green-deep);
+  color:var(--white)!important;
+  padding:9px 20px;
+  border-radius:100px;
+  font-size:13px!important;
+  font-weight:600!important;
+  transition:opacity 0.2s!important;
+}
+.nav-cta:hover{opacity:0.85}
+
+.nav-mobile-btn{display:none;background:none;border:none;cursor:pointer;padding:4px}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:7rem 2rem 5rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero-bg{
+  position:absolute;inset:0;
+  background:var(--cream);
+  z-index:0;
+}
+
+/* Organic shape */
+.hero-shape{
+  position:absolute;
+  right:-8%;top:8%;
+  width:55%;
+  aspect-ratio:1;
+  background:var(--green-ghost);
+  border-radius:60% 40% 50% 50% / 50% 40% 60% 50%;
+  z-index:0;
+  animation:morphShape 12s ease-in-out infinite;
+}
+
+@keyframes morphShape{
+  0%,100%{border-radius:60% 40% 50% 50% / 50% 40% 60% 50%}
+  33%{border-radius:50% 50% 40% 60% / 60% 50% 40% 50%}
+  66%{border-radius:40% 60% 60% 40% / 50% 60% 40% 60%}
+}
+
+.hero-dots{
+  position:absolute;
+  left:0;bottom:0;
+  width:240px;height:240px;
+  background-image:radial-gradient(circle,rgba(26,61,46,0.08) 1.5px,transparent 1.5px);
+  background-size:20px 20px;
+  z-index:0;
+}
+
+.hero-inner{
+  max-width:1160px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5rem;
+  align-items:center;
+  position:relative;z-index:1;
+  width:100%;
+}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--green-ghost);
+  border:0.5px solid var(--green-pale);
+  color:var(--green-mid);
+  font-size:12px;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  padding:6px 14px;border-radius:100px;
+  margin-bottom:1.5rem;
+}
+
+.hero-eyebrow-dot{
+  width:7px;height:7px;
+  background:var(--green-light);
+  border-radius:50%;
+  animation:pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.8)}
+}
+
+.hero-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2.6rem,5vw,4rem);
+  font-weight:600;
+  line-height:1.05;
+  letter-spacing:-0.02em;
+  color:var(--green-deep);
+  margin-bottom:1.25rem;
+}
+
+.hero-title em{
+  font-style:italic;
+  font-weight:400;
+  color:var(--green-mid);
+  position:relative;
+}
+
+.hero-title em::after{
+  content:'';
+  position:absolute;
+  left:0;right:0;bottom:-4px;
+  height:2px;
+  background:var(--green-light);
+  border-radius:1px;
+}
+
+.hero-desc{
+  font-size:17px;
+  color:var(--text-mid);
+  line-height:1.75;
+  margin-bottom:2.5rem;
+  max-width:440px;
+}
+
+.hero-form{
+  display:flex;
+  gap:10px;
+  margin-bottom:1.25rem;
+  flex-wrap:wrap;
+}
+
+.hero-input{
+  flex:1;min-width:200px;
+  padding:14px 18px;
+  border:1.5px solid var(--border);
+  border-radius:100px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  color:var(--text);
+  background:var(--white);
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.hero-input:focus{
+  border-color:var(--green-light);
+  box-shadow:0 0 0 3px rgba(110,207,160,0.15);
+}
+.hero-input::placeholder{color:var(--text-soft)}
+
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--green-deep);
+  color:var(--white);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:600;
+  padding:14px 24px;
+  border-radius:100px;
+  border:none;cursor:pointer;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.btn-primary:hover{background:var(--green-mid);transform:translateY(-1px)}
+.btn-primary:active{transform:none}
+
+.btn-primary svg{transition:transform 0.2s}
+.btn-primary:hover svg{transform:translateX(3px)}
+
+.hero-form-note{
+  font-size:12px;
+  color:var(--text-soft);
+  display:flex;align-items:center;gap:5px;
+}
+
+.hero-success{
+  display:none;
+  background:var(--green-ghost);
+  border:1px solid var(--green-pale);
+  border-radius:16px;
+  padding:1.25rem 1.5rem;
+  color:var(--green-deep);
+  font-size:15px;
+  font-weight:500;
+  margin-bottom:1.25rem;
+}
+
+.hero-visual{
+  position:relative;
+}
+
+.hero-card-main{
+  background:var(--green-deep);
+  border-radius:24px;
+  padding:2rem;
+  color:var(--white);
+  position:relative;
+  overflow:hidden;
+}
+
+.hero-card-main::before{
+  content:'';
+  position:absolute;
+  top:-40px;right:-40px;
+  width:180px;height:180px;
+  background:rgba(110,207,160,0.08);
+  border-radius:50%;
+}
+
+.hcm-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(110,207,160,0.6);
+  margin-bottom:0.5rem;
+}
+
+.hcm-name{
+  font-family:'Fraunces',serif;
+  font-size:1.3rem;font-weight:600;
+  margin-bottom:0.25rem;
+}
+
+.hcm-sub{
+  font-size:12px;
+  color:rgba(255,255,255,0.45);
+  margin-bottom:1.5rem;
+}
+
+.hcm-bars{margin-bottom:1.5rem}
+
+.hcm-bar{margin-bottom:12px}
+
+.hcm-bar-top{
+  display:flex;justify-content:space-between;
+  font-size:12px;margin-bottom:6px;
+}
+.hcm-bar-name{color:rgba(255,255,255,0.75);font-weight:500}
+.hcm-bar-dose{color:rgba(110,207,160,0.7);font-family:'DM Mono',monospace}
+
+.hcm-bar-track{
+  height:5px;
+  background:rgba(255,255,255,0.08);
+  border-radius:3px;overflow:hidden;
+}
+.hcm-bar-fill{
+  height:100%;
+  background:var(--green-light);
+  border-radius:3px;
+  animation:barLoad 1.2s ease forwards;
+  transform-origin:left;
+}
+@keyframes barLoad{from{width:0%}}
+
+.hcm-week{
+  display:flex;gap:5px;
+}
+.hcm-day{
+  flex:1;aspect-ratio:1;
+  border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:9px;
+}
+.hcm-day.done{background:var(--green-light);color:var(--green-deep)}
+.hcm-day.today{background:transparent;border:1px solid var(--green-light);color:var(--green-light)}
+.hcm-day.empty{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.2)}
+
+.hero-card-float{
+  position:absolute;
+  bottom:-20px;right:-20px;
+  background:var(--white);
+  border-radius:16px;
+  padding:1rem 1.25rem;
+  box-shadow:0 8px 32px rgba(26,61,46,0.12);
+  min-width:180px;
+}
+.hcf-label{font-size:10px;color:var(--text-soft);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.hcf-val{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;color:var(--green-deep)}
+.hcf-sub{font-size:12px;color:var(--text-soft)}
+
+.hero-card-float2{
+  position:absolute;
+  top:-16px;left:-16px;
+  background:var(--amber-pale);
+  border:1px solid rgba(232,169,75,0.25);
+  border-radius:14px;
+  padding:0.75rem 1rem;
+  display:flex;align-items:center;gap:8px;
+}
+.hcf2-icon{
+  width:32px;height:32px;
+  background:var(--amber);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.hcf2-text{font-size:12px;font-weight:600;color:var(--text)}
+.hcf2-sub{font-size:11px;color:var(--text-soft)}
+
+/* ── LOGOS BAR ── */
+.logos-bar{
+  background:var(--cream-dark);
+  border-top:0.5px solid var(--border);
+  border-bottom:0.5px solid var(--border);
+  padding:1.25rem 2rem;
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  flex-wrap:wrap;
+}
+.logos-bar-label{
+  font-size:12px;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--text-soft);
+  margin-right:1rem;
+}
+.logo-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.6);
+  border:0.5px solid var(--border);
+  border-radius:100px;
+  padding:6px 14px;
+  font-size:13px;font-weight:600;
+  color:var(--text-mid);
+}
+
+/* ── SECTION WRAPPER ── */
+.section{padding:7rem 2rem;max-width:1160px;margin:0 auto}
+.section-full{padding:7rem 2rem;background:var(--white)}
+.section-full .section-inner{max-width:1160px;margin:0 auto}
+.section-dark{background:var(--green-deep);padding:7rem 2rem}
+.section-dark .section-inner{max-width:1160px;margin:0 auto}
+
+.section-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--green-mid);
+  margin-bottom:1rem;
+}
+.section-eyebrow-dark{color:var(--green-light)}
+
+.section-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2rem,4vw,3rem);
+  font-weight:600;
+  letter-spacing:-0.02em;
+  line-height:1.1;
+  color:var(--green-deep);
+  margin-bottom:1rem;
+}
+.section-title em{font-style:italic;font-weight:400;color:var(--green-mid)}
+.section-title-white{color:var(--white)}
+.section-title-white em{color:var(--green-light)}
+
+.section-desc{
+  font-size:17px;
+  color:var(--text-mid);
+  line-height:1.75;
+  max-width:520px;
+}
+.section-desc-white{color:rgba(255,255,255,0.6)}
+
+/* ── HOW IT WORKS ── */
+.steps{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2rem;
+  margin-top:4rem;
+  position:relative;
+}
+
+.steps::before{
+  content:'';
+  position:absolute;
+  top:42px;left:16%;right:16%;
+  height:1px;
+  background:var(--border);
+}
+
+.step{
+  display:flex;flex-direction:column;
+  align-items:flex-start;
+  position:relative;
+}
+
+.step-num{
+  width:48px;height:48px;
+  background:var(--green-ghost);
+  border:1.5px solid var(--green-pale);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;
+  font-size:14px;font-weight:500;
+  color:var(--green-mid);
+  margin-bottom:1.25rem;
+  position:relative;z-index:1;
+}
+
+.step.active .step-num{
+  background:var(--green-deep);
+  border-color:var(--green-deep);
+  color:var(--white);
+}
+
+.step-title{
+  font-family:'Fraunces',serif;
+  font-size:1.25rem;font-weight:600;
+  color:var(--green-deep);
+  margin-bottom:0.5rem;
+}
+
+.step-desc{
+  font-size:14px;
+  color:var(--text-mid);
+  line-height:1.7;
+}
+
+/* ── FEATURES ── */
+.features-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:3rem;
+  align-items:center;
+  margin-top:4rem;
+}
+
+.features-list{
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+
+.feature-item{
+  display:flex;gap:1rem;
+  padding:1.25rem;
+  border-radius:16px;
+  border:0.5px solid transparent;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.feature-item:hover,.feature-item.active{
+  background:var(--white);
+  border-color:var(--border);
+}
+
+.feature-icon{
+  width:42px;height:42px;flex-shrink:0;
+  background:var(--green-ghost);
+  border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+}
+.feature-item.active .feature-icon{background:var(--green-deep)}
+.feature-item.active .feature-icon svg path,.feature-item.active .feature-icon svg circle,.feature-item.active .feature-icon svg rect{stroke:#6ECFA0}
+
+.feature-title{
+  font-size:15px;font-weight:600;
+  color:var(--green-deep);
+  margin-bottom:4px;
+}
+.feature-desc{
+  font-size:13px;
+  color:var(--text-soft);
+  line-height:1.6;
+}
+
+.features-preview{
+  background:var(--green-deep);
+  border-radius:28px;
+  padding:2.5rem;
+  min-height:400px;
+  display:flex;flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+  overflow:hidden;
+}
+
+.features-preview::after{
+  content:'';
+  position:absolute;
+  bottom:-60px;right:-60px;
+  width:220px;height:220px;
+  background:rgba(110,207,160,0.06);
+  border-radius:50%;
+}
+
+.fp-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(110,207,160,0.5);
+  margin-bottom:1.5rem;
+}
+
+.fp-preview-area{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+}
+
+/* ── SOCIAL PROOF ── */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+  margin-top:4rem;
+}
+
+.stat-card{
+  background:var(--cream-dark);
+  border-radius:20px;
+  padding:2rem 1.75rem;
+  border:0.5px solid var(--border);
+}
+.stat-card:first-child{background:var(--green-deep)}
+
+.sc-val{
+  font-family:'Fraunces',serif;
+  font-size:3rem;font-weight:600;
+  letter-spacing:-0.03em;
+  color:var(--green-deep);
+  line-height:1;
+  margin-bottom:6px;
+}
+.stat-card:first-child .sc-val{color:var(--white)}
+
+.sc-label{
+  font-size:15px;font-weight:500;
+  color:var(--text-mid);
+  margin-bottom:4px;
+}
+.stat-card:first-child .sc-label{color:rgba(255,255,255,0.65)}
+
+.sc-sub{font-size:13px;color:var(--text-soft)}
+.stat-card:first-child .sc-sub{color:rgba(255,255,255,0.35)}
+
+.testimonials{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+  margin-top:2rem;
+}
+
+.testimonial{
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:20px;
+  padding:1.5rem;
+}
+
+.t-stars{
+  display:flex;gap:3px;
+  margin-bottom:0.75rem;
+}
+.t-star{
+  width:14px;height:14px;
+  background:var(--amber);
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+}
+
+.t-text{
+  font-size:14px;
+  color:var(--text-mid);
+  line-height:1.65;
+  margin-bottom:1rem;
+  font-style:italic;
+}
+
+.t-author{display:flex;align-items:center;gap:10px}
+.t-avatar{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;
+  flex-shrink:0;
+}
+.t-name{font-size:13px;font-weight:600;color:var(--text)}
+.t-role{font-size:12px;color:var(--text-soft)}
+
+/* ── PRICING ── */
+.pricing-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+  margin-top:4rem;
+}
+
+.plan-card{
+  background:var(--cream-dark);
+  border:0.5px solid var(--border);
+  border-radius:24px;
+  padding:2rem 1.75rem;
+  display:flex;flex-direction:column;
+  gap:1.25rem;
+  transition:transform 0.2s;
+}
+.plan-card:hover{transform:translateY(-4px)}
+
+.plan-card.featured{
+  background:var(--green-deep);
+  border:none;
+  position:relative;
+}
+
+.plan-badge{
+  display:inline-flex;
+  background:var(--green-light);
+  color:var(--green-deep);
+  font-size:11px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:4px 12px;border-radius:100px;
+  margin-bottom:0.5rem;
+}
+
+.plan-name{
+  font-family:'Fraunces',serif;
+  font-size:1.5rem;font-weight:600;
+  color:var(--green-deep);
+}
+.plan-card.featured .plan-name{color:var(--white)}
+
+.plan-price{
+  display:flex;align-items:baseline;gap:4px;
+}
+.plan-currency{font-size:16px;font-weight:600;color:var(--text-mid);margin-top:4px}
+.plan-card.featured .plan-currency{color:rgba(255,255,255,0.6)}
+.plan-amount{
+  font-family:'Fraunces',serif;
+  font-size:2.8rem;font-weight:600;
+  letter-spacing:-0.03em;
+  color:var(--green-deep);
+  line-height:1;
+}
+.plan-card.featured .plan-amount{color:var(--white)}
+.plan-period{font-size:13px;color:var(--text-soft)}
+.plan-card.featured .plan-period{color:rgba(255,255,255,0.4)}
+
+.plan-desc{font-size:13px;color:var(--text-soft);line-height:1.6}
+.plan-card.featured .plan-desc{color:rgba(255,255,255,0.5)}
+
+.plan-divider{height:0.5px;background:var(--border)}
+.plan-card.featured .plan-divider{background:rgba(255,255,255,0.1)}
+
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1}
+
+.plan-feature{
+  display:flex;align-items:flex-start;gap:9px;
+  font-size:13px;color:var(--text-mid);
+}
+.plan-card.featured .plan-feature{color:rgba(255,255,255,0.7)}
+
+.pf-check{
+  width:18px;height:18px;flex-shrink:0;
+  background:var(--green-ghost);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+}
+.plan-card.featured .pf-check{background:rgba(110,207,160,0.2)}
+
+.btn-plan{
+  width:100%;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px;border-radius:100px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:600;
+  cursor:pointer;border:none;
+  transition:all 0.2s;
+  text-decoration:none;
+}
+.btn-plan-outline{
+  background:transparent;
+  border:1.5px solid var(--border);
+  color:var(--green-deep);
+}
+.btn-plan-outline:hover{background:var(--white)}
+.btn-plan-solid{
+  background:var(--green-light);
+  color:var(--green-deep);
+}
+.btn-plan-solid:hover{opacity:0.88}
+.btn-plan-ghost{
+  background:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.6);
+  border:1px solid rgba(255,255,255,0.1);
+  font-size:12px;
+}
+
+/* ── FINAL CTA ── */
+.cta-section{
+  background:var(--green-deep);
+  padding:7rem 2rem;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.cta-section::before{
+  content:'';
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:600px;height:600px;
+  background:rgba(110,207,160,0.05);
+  border-radius:50%;
+}
+
+.cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
+
+.cta-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(110,207,160,0.12);
+  border:0.5px solid rgba(110,207,160,0.25);
+  color:var(--green-light);
+  font-size:12px;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  padding:6px 14px;border-radius:100px;
+  margin-bottom:1.5rem;
+}
+
+.cta-title{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:600;
+  letter-spacing:-0.02em;
+  line-height:1.1;
+  color:var(--white);
+  margin-bottom:1.25rem;
+}
+.cta-title em{font-style:italic;color:var(--green-light)}
+
+.cta-desc{
+  font-size:17px;
+  color:rgba(255,255,255,0.55);
+  line-height:1.7;
+  margin-bottom:2.5rem;
+}
+
+.cta-form{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+}
+
+.cta-input{
+  padding:14px 20px;
+  border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:100px;
+  background:rgba(255,255,255,0.07);
+  color:var(--white);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;
+  outline:none;
+  min-width:240px;
+  transition:border-color 0.2s;
+}
+.cta-input::placeholder{color:rgba(255,255,255,0.3)}
+.cta-input:focus{border-color:rgba(110,207,160,0.5)}
+
+.btn-cta-white{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);
+  color:var(--green-deep);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;
+  padding:14px 24px;
+  border-radius:100px;
+  border:none;cursor:pointer;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+.btn-cta-white:hover{background:var(--cream);transform:translateY(-1px)}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--green-deep);
+  border-top:0.5px solid rgba(255,255,255,0.06);
+  padding:3rem 2rem;
+}
+.footer-inner{
+  max-width:1160px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+}
+.footer-logo{
+  font-family:'Fraunces',serif;
+  font-size:1.5rem;font-weight:600;
+  color:var(--white);
+}
+.footer-links{display:flex;gap:1.5rem;list-style:none;flex-wrap:wrap}
+.footer-links a{font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:rgba(255,255,255,0.7)}
+.footer-copy{font-size:13px;color:rgba(255,255,255,0.2)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:3rem}
+  .hero-visual{display:none}
+  .hero-shape{display:none}
+  .steps{grid-template-columns:1fr}
+  .steps::before{display:none}
+  .features-grid{grid-template-columns:1fr}
+  .features-preview{min-height:auto}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .testimonials{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .nav-mobile-btn{display:flex}
+}
+
+@media(max-width:560px){
+  .hero{padding:5rem 1.25rem 4rem}
+  .section{padding:5rem 1.25rem}
+  .section-full{padding:5rem 1.25rem}
+  .section-dark{padding:5rem 1.25rem}
+  .cta-section{padding:5rem 1.25rem}
+  .stats-grid{grid-template-columns:1fr}
+  .hero-form{flex-direction:column}
+  .hero-input,.btn-primary{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="8" r="4" fill="none" stroke="#6ECFA0" stroke-width="1.5"/>
+        <circle cx="10" cy="8" r="1.5" fill="#6ECFA0"/>
+        <path d="M6 15 Q10 11.5 14 15" stroke="#6ECFA0" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">nuvita</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#recursos">Recursos</a></li>
+    <li><a href="#planos">Planos</a></li>
+    <li><a href="#lista" class="nav-cta">Entrar na lista</a></li>
+  </ul>
+  <button class="nav-mobile-btn" onclick="document.getElementById('mobile-menu').style.display=document.getElementById('mobile-menu').style.display==='flex'?'none':'flex'" aria-label="Menu">
+    <svg width="22" height="22" fill="none" viewBox="0 0 22 22"><path d="M3 6h16M3 11h16M3 16h16" stroke="#1A3D2E" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu" style="display:none;position:fixed;top:64px;left:0;right:0;z-index:99;background:var(--cream);border-bottom:0.5px solid var(--border);padding:1.5rem 2rem;flex-direction:column;gap:1rem;">
+  <a href="#como-funciona" style="font-size:15px;font-weight:500;color:var(--text);text-decoration:none;" onclick="document.getElementById('mobile-menu').style.display='none'">Como funciona</a>
+  <a href="#recursos" style="font-size:15px;font-weight:500;color:var(--text);text-decoration:none;" onclick="document.getElementById('mobile-menu').style.display='none'">Recursos</a>
+  <a href="#planos" style="font-size:15px;font-weight:500;color:var(--text);text-decoration:none;" onclick="document.getElementById('mobile-menu').style.display='none'">Planos</a>
+  <a href="#lista" style="display:inline-flex;align-items:center;justify-content:center;background:var(--green-deep);color:var(--white);font-size:14px;font-weight:600;padding:12px 24px;border-radius:100px;text-decoration:none;" onclick="document.getElementById('mobile-menu').style.display='none'">Entrar na lista →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-shape"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-dot"></div>
+        Em breve — entre na lista de espera
+      </div>
+      <h1 class="hero-title">
+        Peptídeos com<br>
+        <em>clareza e método</em><br>
+        para todos.
+      </h1>
+      <p class="hero-desc">
+        Diagnóstico personalizado, protocolo sob medida e acompanhamento contínuo. Sem achismos, sem complicação.
+      </p>
+      <div id="hero-success" class="hero-success">
+        ✓ &nbsp;Você está na lista! Te avisaremos assim que a Nuvita abrir.
+      </div>
+      <form class="hero-form" id="hero-form" onsubmit="handleSubmit(event,'hero-email','hero-success','hero-form')">
+        <input class="hero-input" id="hero-email" type="email" placeholder="Seu melhor e-mail" required>
+        <button class="btn-primary" type="submit">
+          Quero acesso antecipado
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <p class="hero-form-note">
+        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="2" y="5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1"/><path d="M5 5V4a2 2 0 014 0v1" stroke="currentColor" stroke-width="1"/></svg>
+        Sem spam. Você sai quando quiser.
+      </p>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card-float2">
+        <div class="hcf2-icon">
+          <svg width="18" height="18" fill="none" viewBox="0 0 18 18"><path d="M9 2v4M9 12v4M2 9h4M12 9h4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="hcf2-text">Protocolo gerado</div>
+          <div class="hcf2-sub">3 peptídeos selecionados</div>
+        </div>
+      </div>
+
+      <div class="hero-card-main">
+        <div class="hcm-label">Protocolo ativo — semana 3</div>
+        <div class="hcm-name">Ana Paula, 34 anos</div>
+        <div class="hcm-sub">Objetivo: composição corporal · ativo</div>
+
+        <div class="hcm-bars">
+          <div class="hcm-bar">
+            <div class="hcm-bar-top">
+              <span class="hcm-bar-name">AOD-9604</span>
+              <span class="hcm-bar-dose">300mcg/dia</span>
+            </div>
+            <div class="hcm-bar-track"><div class="hcm-bar-fill" style="width:72%"></div></div>
+          </div>
+          <div class="hcm-bar">
+            <div class="hcm-bar-top">
+              <span class="hcm-bar-name">Ipamorelin</span>
+              <span class="hcm-bar-dose">200mcg</span>
+            </div>
+            <div class="hcm-bar-track"><div class="hcm-bar-fill" style="width:58%;animation-delay:.2s"></div></div>
+          </div>
+          <div class="hcm-bar">
+            <div class="hcm-bar-top">
+              <span class="hcm-bar-name">CJC-1295</span>
+              <span class="hcm-bar-dose">100mcg</span>
+            </div>
+            <div class="hcm-bar-track"><div class="hcm-bar-fill" style="width:65%;animation-delay:.4s"></div></div>
+          </div>
+        </div>
+
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(110,207,160,0.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Adesão esta semana</div>
+        <div class="hcm-week">
+          <div class="hcm-day done">✓</div>
+          <div class="hcm-day done">✓</div>
+          <div class="hcm-day done">✓</div>
+          <div class="hcm-day done">✓</div>
+          <div class="hcm-day today">!</div>
+          <div class="hcm-day empty"></div>
+          <div class="hcm-day empty"></div>
+        </div>
+      </div>
+
+      <div class="hero-card-float">
+        <div class="hcf-label">Adesão ao protocolo</div>
+        <div class="hcf-val">94<span style="font-size:1.2rem">%</span></div>
+        <div class="hcf-sub">↑ 8% desde a semana 1</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS BAR -->
+<div class="logos-bar">
+  <span class="logos-bar-label">Para quem quer</span>
+  <span class="logo-badge">
+    <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2a4 4 0 100 8A4 4 0 007 2z" stroke="#1A3D2E" stroke-width="1"/><path d="M3 12c0-2 1.8-3.5 4-3.5S11 10 11 12" stroke="#1A3D2E" stroke-width="1" stroke-linecap="round"/></svg>
+    Iniciantes
+  </span>
+  <span class="logo-badge">
+    <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 10 L5 7 L8 9 L12 4" stroke="#1A3D2E" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Performance
+  </span>
+  <span class="logo-badge">
+    <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="#1A3D2E" stroke-width="1"/><path d="M7 4v3.5l2 1.5" stroke="#1A3D2E" stroke-width="1" stroke-linecap="round"/></svg>
+    Longevidade
+  </span>
+  <span class="logo-badge">
+    <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M7 2l1.2 3.8H12L9 8l1.2 3.8L7 9.5l-3.2 2.3L5 8 2 5.8h3.8z" stroke="#1A3D2E" stroke-width="1" stroke-linejoin="round"/></svg>
+    Bem-estar
+  </span>
+</div>
+
+<!-- COMO FUNCIONA -->
+<div id="como-funciona">
+<div class="section-full">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-eyebrow">Como funciona</div>
+      <h2 class="section-title">De zero ao protocolo<br><em>em menos de 5 minutos.</em></h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal reveal-delay-1">
+        <div class="step-num active">01</div>
+        <h3 class="step-title">Diagnóstico de perfil</h3>
+        <p class="step-desc">Responda 6 perguntas rápidas sobre seus objetivos, histórico e estilo de vida. Nada de médico, nada de exame.</p>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Protocolo personalizado</h3>
+        <p class="step-desc">Receba um protocolo visual e detalhado — quais peptídeos usar, a dosagem certa, o momento ideal e a duração do ciclo.</p>
+      </div>
+      <div class="step reveal reveal-delay-3">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Acompanhamento contínuo</h3>
+        <p class="step-desc">Check-ins semanais, registro de progresso e ajustes automáticos. A plataforma evolui junto com você.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- RECURSOS -->
+<div id="recursos">
+<div class="section">
+  <div class="reveal">
+    <div class="section-eyebrow">Recursos</div>
+    <h2 class="section-title">Tudo que você precisa<br><em>num só lugar.</em></h2>
+  </div>
+
+  <div class="features-grid">
+    <div class="features-list reveal">
+      <div class="feature-item active" onclick="setFeature(this,'preview-protocolo')">
+        <div class="feature-icon">
+          <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#1A3D2E" stroke-width="1.5"/><path d="M7 7h6M7 10h6M7 13h3" stroke="#1A3D2E" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">Protocolo visual guiado</div>
+          <div class="feature-desc">Cada etapa do seu ciclo explicada de forma simples, com lembretes e orientações claras.</div>
+        </div>
+      </div>
+
+      <div class="feature-item" onclick="setFeature(this,'preview-calc')">
+        <div class="feature-icon">
+          <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" rx="2" stroke="#1A3D2E" stroke-width="1.5"/><path d="M8 8h4M8 12h4M10 8v4" stroke="#1A3D2E" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">Calculadora de dosagem</div>
+          <div class="feature-desc">Dosagem calculada com base no seu peso, objetivo e nível de experiência. Sempre segura.</div>
+        </div>
+      </div>
+
+      <div class="feature-item" onclick="setFeature(this,'preview-check')">
+        <div class="feature-icon">
+          <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M17 5L8 14l-5-5" stroke="#1A3D2E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">Check-ins e progresso</div>
+          <div class="feature-desc">Registro semanal de como você está se sentindo, com visualização clara da evolução.</div>
+        </div>
+      </div>
+
+      <div class="feature-item" onclick="setFeature(this,'preview-edu')">
+        <div class="feature-icon">
+          <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M3 7l7-4 7 4-7 4-7-4z" stroke="#1A3D2E" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 7v6c0 0 3 3 7 3s7-3 7-3V7" stroke="#1A3D2E" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="feature-title">Biblioteca educativa</div>
+          <div class="feature-desc">Guias claros sobre cada peptídeo — o que é, como age, efeitos e cuidados. Sem jargão.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="features-preview reveal reveal-delay-2" id="feature-preview-box">
+      <div class="fp-label" id="fp-label">Protocolo personalizado</div>
+      <div class="fp-preview-area" id="fp-content">
+        <!-- protocolo preview -->
+        <div id="preview-protocolo">
+          <div style="margin-bottom:1.5rem">
+            <div style="font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:#fff;margin-bottom:6px;">Semana 1 de 8</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);">Fase de introdução · dosagem conservadora</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:3px;">AOD-9604</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);">Manhã em jejum</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'DM Mono',monospace;font-size:14px;color:#6ECFA0;">300mcg</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.25);">subcutâneo</div>
+              </div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:3px;">Ipamorelin</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);">Antes de dormir</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:'DM Mono',monospace;font-size:14px;color:#6ECFA0;">200mcg</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.25);">subcutâneo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="preview-calc" style="display:none">
+          <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;margin-bottom:1.5rem;">Calculadora de dosagem</div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:10px;">
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;">Peso: 72kg · BPC-157</div>
+            <div style="font-family:'DM Mono',monospace;font-size:2rem;color:#6ECFA0;">250<span style="font-size:1rem;opacity:.5">mcg</span></div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px;">2x ao dia · 8 semanas</div>
+          </div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.3);line-height:1.6;">Ajustado para iniciantes com base no seu perfil e objetivo de recuperação.</div>
+        </div>
+        <div id="preview-check" style="display:none">
+          <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;margin-bottom:1.5rem;">Check-in da semana 4</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span style="color:rgba(255,255,255,0.5);">Energia</span>
+              <div style="display:flex;gap:4px">
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;opacity:.3"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;opacity:.3"></div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span style="color:rgba(255,255,255,0.5);">Sono</span>
+              <div style="display:flex;gap:4px">
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;opacity:.3"></div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span style="color:rgba(255,255,255,0.5);">Disposição</span>
+              <div style="display:flex;gap:4px">
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+                <div style="width:28px;height:8px;border-radius:4px;background:#6ECFA0;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="preview-edu" style="display:none">
+          <div style="font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;margin-bottom:1.5rem;">Biblioteca · BPC-157</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.75;">Peptídeo de origem gástrica com forte ação regenerativa em tecidos, tendões e mucosa intestinal. Usado para recuperação acelerada e proteção articular.</div>
+          <div style="display:flex;gap:8px;margin-top:1.25rem;flex-wrap:wrap">
+            <span style="padding:5px 12px;background:rgba(110,207,160,0.12);border:0.5px solid rgba(110,207,160,0.2);border-radius:100px;font-size:12px;color:#6ECFA0;">Recuperação</span>
+            <span style="padding:5px 12px;background:rgba(110,207,160,0.12);border:0.5px solid rgba(110,207,160,0.2);border-radius:100px;font-size:12px;color:#6ECFA0;">Anti-inflamatório</span>
+            <span style="padding:5px 12px;background:rgba(110,207,160,0.12);border:0.5px solid rgba(110,207,160,0.2);border-radius:100px;font-size:12px;color:#6ECFA0;">Intestino</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SOCIAL PROOF -->
+<div class="section-full">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center;margin-bottom:0">
+      <div class="section-eyebrow" style="justify-content:center">Por que a Nuvita?</div>
+      <h2 class="section-title" style="margin:0 auto 0.5rem;">Números que<br><em>falam por si.</em></h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="sc-val">94%</div>
+        <div class="sc-label">Taxa de adesão</div>
+        <div class="sc-sub">dos usuários seguem o protocolo até o fim</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="sc-val">3min</div>
+        <div class="sc-label">Para ter um protocolo</div>
+        <div class="sc-sub">do diagnóstico ao plano personalizado</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="sc-val">8sem</div>
+        <div class="sc-label">Primeiro resultado</div>
+        <div class="sc-sub">tempo médio para resultados visíveis</div>
+      </div>
+    </div>
+
+    <div class="testimonials" style="margin-top:2rem">
+      <div class="testimonial reveal reveal-delay-1">
+        <div class="t-stars"><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div></div>
+        <p class="t-text">"Finalmente entendi o que estava usando. O protocolo é claro, o acompanhamento me mantém consistente."</p>
+        <div class="t-author">
+          <div class="t-avatar" style="background:#EDF8F3;color:#1A3D2E;">CA</div>
+          <div><div class="t-name">Carlos A.</div><div class="t-role">Empresário, 38 anos</div></div>
+        </div>
+      </div>
+      <div class="testimonial reveal reveal-delay-2">
+        <div class="t-stars"><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div></div>
+        <p class="t-text">"Nunca tinha usado peptídeos antes. A plataforma me deu confiança para começar do jeito certo."</p>
+        <div class="t-author">
+          <div class="t-avatar" style="background:#FBF0DA;color:#854F0B;">RF</div>
+          <div><div class="t-name">Renata F.</div><div class="t-role">Professora, 42 anos</div></div>
+        </div>
+      </div>
+      <div class="testimonial reveal reveal-delay-3">
+        <div class="t-stars"><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div><div class="t-star"></div></div>
+        <p class="t-text">"O check-in semanal muda tudo. Você vê a evolução e isso te motiva a continuar."</p>
+        <div class="t-author">
+          <div class="t-avatar" style="background:#EEEDFE;color:#3C3489;">MG</div>
+          <div><div class="t-name">Marcos G.</div><div class="t-role">Personal trainer, 31 anos</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLANOS -->
+<div id="planos">
+<div class="section">
+  <div class="reveal" style="text-align:center">
+    <div class="section-eyebrow" style="justify-content:center">Planos</div>
+    <h2 class="section-title" style="margin:0 auto 0.5rem;">Simples, justo,<br><em>sem surpresa.</em></h2>
+    <p class="section-desc" style="margin:0 auto 0;text-align:center">Comece grátis e evolua conforme avança.</p>
+  </div>
+  <div class="pricing-grid">
+
+    <div class="plan-card reveal reveal-delay-1">
+      <div>
+        <div class="plan-name">Grátis</div>
+        <div class="plan-price">
+          <span class="plan-currency">R$</span>
+          <span class="plan-amount">0</span>
+        </div>
+        <div class="plan-period">para sempre</div>
+      </div>
+      <p class="plan-desc">Ideal para entender como funciona e dar o primeiro passo.</p>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Diagnóstico completo</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>1 protocolo personalizado</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Calculadora de dosagem</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Biblioteca básica</li>
+      </ul>
+      <a href="#lista" class="btn-plan btn-plan-outline">Começar grátis</a>
+    </div>
+
+    <div class="plan-card featured reveal reveal-delay-2">
+      <div>
+        <div class="plan-badge">Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">
+          <span class="plan-currency" style="color:rgba(255,255,255,.5)">R$</span>
+          <span class="plan-amount" style="color:#fff">79</span>
+        </div>
+        <div class="plan-period" style="color:rgba(255,255,255,.35)">/mês</div>
+      </div>
+      <p class="plan-desc">Para quem quer seguir um protocolo completo com suporte contínuo.</p>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#6ECFA0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Tudo do plano grátis</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#6ECFA0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Protocolos ilimitados</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#6ECFA0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Check-ins e progresso</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#6ECFA0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Ajustes automáticos de IA</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#6ECFA0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Biblioteca completa</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#6ECFA0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Alertas de janela de uso</li>
+      </ul>
+      <a href="#lista" class="btn-plan btn-plan-solid">Quero acesso antecipado</a>
+    </div>
+
+    <div class="plan-card reveal reveal-delay-3">
+      <div>
+        <div class="plan-name">Anual</div>
+        <div class="plan-price">
+          <span class="plan-currency">R$</span>
+          <span class="plan-amount">59</span>
+        </div>
+        <div class="plan-period">/mês · cobrado anualmente</div>
+      </div>
+      <p class="plan-desc">Mesmo que o Pro com desconto de 25%. Para quem já sabe que vai continuar.</p>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Tudo do plano Pro</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Economia de R$240/ano</li>
+        <li class="plan-feature"><div class="pf-check"><svg width="10" height="10" fill="none" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#1A3D2E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>Suporte prioritário</li>
+      </ul>
+      <a href="#lista" class="btn-plan btn-plan-outline">Escolher anual</a>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FINAL CTA -->
+<section class="cta-section" id="lista">
+  <div class="cta-inner reveal">
+    <div class="cta-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      Acesso antecipado
+    </div>
+    <h2 class="cta-title">Pronto para cuidar<br>da sua saúde <em>do jeito certo?</em></h2>
+    <p class="cta-desc">Junte-se à lista de espera e ganhe 1 mês grátis no lançamento.</p>
+    <div id="cta-success" style="display:none;background:rgba(110,207,160,0.12);border:1px solid rgba(110,207,160,0.25);border-radius:16px;padding:1.25rem 1.5rem;color:#6ECFA0;font-size:15px;font-weight:500;margin-bottom:2rem;">
+      ✓ &nbsp;Você está na lista! Te avisaremos assim que a Nuvita abrir. Obrigado!
+    </div>
+    <form class="cta-form" id="cta-form" onsubmit="handleSubmit(event,'cta-email','cta-success','cta-form')">
+      <input class="cta-input" id="cta-email" type="email" placeholder="Seu melhor e-mail" required>
+      <button class="btn-cta-white" type="submit">
+        Garantir meu acesso
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">nuvita</div>
+    <ul class="footer-links">
+      <li><a href="#como-funciona">Como funciona</a></li>
+      <li><a href="#recursos">Recursos</a></li>
+      <li><a href="#planos">Planos</a></li>
+      <li><a href="#">Privacidade</a></li>
+    </ul>
+    <div class="footer-copy">© 2025 Nuvita. Todos os direitos reservados.</div>
+  </div>
+</footer>
+
+<script>
+// SCROLL REVEAL
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// FEATURE TABS
+function setFeature(el, preview) {
+  document.querySelectorAll('.feature-item').forEach(f => f.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#fp-content > div').forEach(p => p.style.display='none');
+  document.getElementById(preview).style.display='block';
+  const labels = {
+    'preview-protocolo': 'Protocolo personalizado',
+    'preview-calc': 'Calculadora de dosagem',
+    'preview-check': 'Check-in semanal',
+    'preview-edu': 'Biblioteca educativa'
+  };
+  document.getElementById('fp-label').textContent = labels[preview] || '';
+}
+
+// EMAIL SUBMIT
+function handleSubmit(e, inputId, successId, formId) {
+  e.preventDefault();
+  const email = document.getElementById(inputId).value;
+  if(!email) return;
+  document.getElementById(formId).style.display = 'none';
+  document.getElementById(successId).style.display = 'block';
+  // Aqui você conecta ao seu backend / Mailchimp / Resend
+  console.log('Email capturado:', email);
+}
+
+// NAV SCROLL
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').style.background =
+    window.scrollY > 20 ? 'rgba(245,242,237,0.95)' : 'rgba(245,242,237,0.88)';
+});
+</script>
+</body>
+</html>
