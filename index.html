@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuvita — Diagnóstico de Peptídeos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFFFFF; --bg2:#FAFAFA; --bg3:#F5F6F5;
+  --dark:#353B39; --dark2:#2A2F2D;
+  --green:#5EC991; --gp:#CAF6EC; --gm:#3A8F68;
+  --border:#EBEBEB; --border2:#D4D8D6;
+  --tx:#353B39; --tm:#6B7472; --ts:#9EA8A6;
+  --am:#D4893A; --ab:#FFF7ED;
+  --sh:0 1px 4px rgba(0,0,0,.05);
+  --shm:0 4px 16px rgba(0,0,0,.09);
+  --W:1216px;
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── BASE TYPOGRAPHY ── */
+h1,h2,h3,h4{font-weight:500;letter-spacing:-0.05em;color:var(--tx)}
+p,span,div{font-weight:400}
+strong{font-weight:500}
+.mono{font-family:'Inter',monospace;letter-spacing:.01em}
+
+/* ── CONTAINER ── */
+.container{max-width:var(--W);margin:0 auto;padding:0 2rem}
+@media(max-width:640px){.container{padding:0 1rem}}
+
+/* ── GRADIENT BG ── */
+.grad{background:
+  radial-gradient(ellipse 80% 70% at 80% -10%,#B2EDD8 0%,#CAF6EC 18%,rgba(255,255,255,.5) 50%,#FFF 78%),
+  radial-gradient(ellipse 40% 50% at 5% 15%,#C8E8E0 0%,transparent 55%)}
+
+/* ── PILL / BADGE ── */
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--gp);color:var(--gm);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:100px}
+.pill-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pu 2s ease-in-out infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Inter',sans-serif;font-weight:500;font-size:14px;letter-spacing:-.01em;cursor:pointer;transition:all .15s;white-space:nowrap;border:none}
+.btn-dark{background:var(--dark);color:#fff;padding:12px 22px;border-radius:8px}
+.btn-dark:hover{background:var(--dark2)}
+.btn-dark:disabled{opacity:.32;cursor:not-allowed}
+.btn-outline{background:transparent;color:var(--tm);padding:11px 18px;border-radius:8px;border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--border2);color:var(--tx)}
+.btn-green{background:var(--green);color:var(--dark);padding:12px 22px;border-radius:8px;font-weight:500}
+.btn-green:hover{opacity:.88}
+.btn-full{width:100%}
+
+/* ── INPUTS ── */
+.inp{width:100%;padding:12px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--tx);outline:none;transition:border-color .15s;letter-spacing:-.01em}
+.inp::placeholder{color:var(--ts)}
+.inp:focus{border-color:var(--green);background:var(--bg);box-shadow:0 0 0 3px rgba(94,201,145,.1)}
+
+/* ── CARDS ── */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sh)}
+.card-p{padding:1.5rem}
+.card-sm{padding:1.1rem 1.25rem}
+
+/* ══════════════════════════════════
+   QUIZ WRAPPER
+══════════════════════════════════ */
+#quiz-wrap{display:none;min-height:100vh;background:var(--bg)}
+#quiz-wrap.on{display:block}
+
+/* Top nav */
+.q-nav{border-bottom:1px solid var(--border);background:var(--bg)}
+.q-nav-inner{max-width:var(--W);margin:0 auto;padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between}
+@media(max-width:640px){.q-nav-inner{padding:0 1rem}}
+.q-step-lbl{font-size:12px;font-weight:500;color:var(--ts);letter-spacing:.02em}
+
+.q-prog-bar{height:2px;background:var(--border)}
+.q-prog-fill{height:100%;background:var(--green);transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* Quiz content */
+.q-content{max-width:var(--W);margin:0 auto;padding:0 2rem;padding-top:3rem;padding-bottom:5rem}
+@media(max-width:640px){.q-content{padding:1.5rem 1rem 4rem}}
+.q-col{max-width:640px}
+
+/* screens */
+.screen{display:none;animation:fu .35s ease forwards}
+.screen.on{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fo{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-10px)}}
+.screen.bye{display:block;animation:fo .2s ease forwards}
+
+/* welcome screen: 2-col on desktop */
+.welcome-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;min-height:calc(100vh - 100px)}
+@media(max-width:760px){.welcome-grid{grid-template-columns:1fr;min-height:auto;gap:2rem;padding-top:2rem}}
+.welcome-right{display:flex;flex-direction:column;gap:1rem}
+.welcome-stat{background:var(--gp);border-radius:12px;padding:1.25rem;text-align:center}
+.ws-n{font-size:1.8rem;font-weight:500;letter-spacing:-.05em;color:var(--dark)}
+.ws-l{font-size:11px;font-weight:500;color:var(--gm);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.welcome-steps{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.ws-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.ws-item:last-child{border-bottom:none}
+.ws-num{width:22px;height:22px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--gm);flex-shrink:0}
+.ws-txt{font-size:13px;font-weight:400;color:var(--tm);letter-spacing:-.01em}
+
+/* question layout */
+.q-num{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ts);margin-bottom:.75rem}
+.q-title{font-size:clamp(1.5rem,3.5vw,2rem);font-weight:500;letter-spacing:-.05em;color:var(--tx);margin-bottom:.5rem;line-height:1.2}
+.q-sub{font-size:14px;font-weight:400;color:var(--tm);margin-bottom:1.75rem;line-height:1.65;letter-spacing:-.02em}
+.btn-row{display:flex;align-items:center;gap:10px;margin-top:.5rem}
+
+/* options */
+.opts{display:grid;gap:8px;margin-bottom:1.75rem}
+.c2{grid-template-columns:1fr 1fr}
+.c1{grid-template-columns:1fr}
+.opt{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:1rem 1.1rem;cursor:pointer;display:flex;align-items:flex-start;gap:11px;transition:all .13s}
+.opt:hover{border-color:var(--border2);background:var(--bg)}
+.opt.sel{border-color:var(--green);background:#F2FCF7}
+.o-ico{font-size:1.15rem;flex-shrink:0;margin-top:1px}
+.o-bd{flex:1}
+.o-t{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:2px;line-height:1.3;letter-spacing:-.02em}
+.o-d{font-size:12px;font-weight:400;color:var(--ts);line-height:1.45;letter-spacing:-.01em}
+.o-r{width:17px;height:17px;border-radius:50%;border:1px solid var(--border2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.opt.sel .o-r{background:var(--green);border-color:var(--green)}
+.o-rd{width:5px;height:5px;background:white;border-radius:50%;opacity:0;transition:opacity .13s}
+.opt.sel .o-rd{opacity:1}
+
+/* sliders */
+.sl-g{margin-bottom:1.25rem}
+.sl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.7rem}
+.sl-l{font-size:13px;font-weight:500;color:var(--tm);letter-spacing:-.02em}
+.sl-v{font-size:1.15rem;font-weight:500;color:var(--tx);letter-spacing:-.04em}
+.sl-u{font-size:.75em;color:var(--ts)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin-bottom:1.5rem}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:var(--dark);border:3px solid #fff;box-shadow:0 0 0 1.5px var(--green),var(--sh);cursor:pointer}
+
+/* scale */
+.scale{display:flex;gap:7px;margin-bottom:1.75rem}
+.sc{flex:1;aspect-ratio:1;background:var(--bg2);border:1px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .13s;font-size:1.1rem;font-weight:500;color:var(--tm);letter-spacing:-.02em}
+.sc:hover{border-color:var(--border2)}
+.sc.sel{border-color:var(--green);background:#F2FCF7;color:var(--tx)}
+.sc-l{font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--ts)}
+.sc.sel .sc-l{color:var(--gm)}
+
+/* tags */
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:1.75rem}
+.tag{padding:7px 15px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:400;color:var(--tm);cursor:pointer;transition:all .13s;user-select:none;letter-spacing:-.01em}
+.tag:hover{border-color:var(--border2)}
+.tag.sel{background:#F2FCF7;border-color:var(--green);color:var(--dark);font-weight:500}
+
+/* imc */
+.imc-info{font-size:13px;color:var(--tm);margin-top:-.75rem;margin-bottom:1.5rem;letter-spacing:-.01em}
+
+/* ── RESULT ── */
+.r-head{padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.r-nm{font-size:14px;font-weight:500;color:var(--gm);margin-bottom:.2rem;letter-spacing:-.02em}
+.r-title{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:500;letter-spacing:-.05em;color:var(--tx);margin-bottom:.75rem;line-height:1.1}
+.r-hl{color:var(--gm)}
+.r-desc{font-size:14px;font-weight:400;color:var(--tm);line-height:1.7;letter-spacing:-.02em}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.5rem}
+.rc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.875rem 1rem}
+.rc-l{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ts);margin-bottom:4px}
+.rc-v{font-size:14px;font-weight:500;color:var(--tx);line-height:1.3;letter-spacing:-.02em}
+.proto-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:0}
+.proto-lbl{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gm);margin-bottom:.875rem}
+.p-list{list-style:none}
+.p-item{display:flex;align-items:flex-start;gap:11px;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.p-item:last-child{border-bottom:none}
+.p-num{font-size:11px;font-weight:500;color:var(--gm);min-width:20px;padding-top:2px}
+.p-name{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:2px;letter-spacing:-.02em}
+.p-det{font-size:12px;font-weight:400;color:var(--ts);line-height:1.45;letter-spacing:-.01em}
+.p-dose{margin-left:auto;text-align:right;flex-shrink:0}
+.p-dv{font-size:12px;font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.p-df{font-size:10px;font-weight:400;color:var(--ts)}
+.p-item.locked{filter:blur(5px);pointer-events:none;user-select:none}
+.gate{background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,#fff 30%);margin-top:-48px;padding-top:56px}
+.gate-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.75rem;margin-bottom:1.25rem;text-align:center}
+.gate-ico{width:46px;height:46px;background:var(--gp);border-radius:11px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.gate-title{font-size:1.3rem;font-weight:500;letter-spacing:-.04em;color:var(--tx);margin-bottom:.5rem;line-height:1.25}
+.gate-sub{font-size:13px;font-weight:400;color:var(--tm);line-height:1.65;margin-bottom:1.5rem;letter-spacing:-.02em}
+.disc{padding:.875rem 1rem;background:var(--ab);border:1px solid rgba(212,137,58,.2);border-radius:8px;font-size:12px;font-weight:400;color:var(--am);line-height:1.6;letter-spacing:-.01em}
+
+/* ── PRICING ── */
+.pricing-hdr{text-align:center;padding:2.5rem 0 2rem}
+.pricing-hdr h2{font-size:clamp(1.8rem,4vw,2.4rem)}
+.pricing-hdr p{font-size:15px;font-weight:400;color:var(--tm);margin-top:.75rem;letter-spacing:-.02em}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:1.5rem}
+@media(max-width:760px){.plans-grid{grid-template-columns:1fr}}
+.plan{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;transition:box-shadow .15s}
+.plan:hover{box-shadow:var(--shm)}
+.plan.feat{background:var(--dark);border-color:var(--dark)}
+.plan-tag{display:inline-flex;background:var(--gp);color:var(--gm);font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:.875rem}
+.plan.feat .plan-tag{background:var(--green);color:var(--dark)}
+.plan-name{font-size:1rem;font-weight:500;color:var(--tx);margin-bottom:.5rem;letter-spacing:-.03em}
+.plan.feat .plan-name{color:white}
+.plan-price{display:flex;align-items:baseline;gap:2px;margin-bottom:.25rem}
+.p-cur{font-size:13px;font-weight:400;color:var(--ts);margin-top:3px}
+.plan.feat .p-cur{color:rgba(255,255,255,.4)}
+.p-amt{font-size:2.4rem;font-weight:500;color:var(--tx);line-height:1;letter-spacing:-.05em}
+.plan.feat .p-amt{color:var(--green)}
+.p-per{font-size:12px;font-weight:400;color:var(--ts)}
+.plan.feat .p-per{color:rgba(255,255,255,.35)}
+.plan-desc{font-size:12px;font-weight:400;color:var(--ts);line-height:1.55;margin-bottom:1.1rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border);letter-spacing:-.01em}
+.plan.feat .plan-desc{color:rgba(255,255,255,.4);border-color:rgba(255,255,255,.07)}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:1.5rem}
+.pf{display:flex;align-items:flex-start;gap:8px;font-size:12px;font-weight:400;color:var(--tm);letter-spacing:-.01em}
+.plan.feat .pf{color:rgba(255,255,255,.55)}
+.pf strong{font-weight:500;color:var(--tx)}
+.plan.feat .pf strong{color:white}
+.pf-c{width:16px;height:16px;flex-shrink:0;background:var(--gp);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.plan.feat .pf-c{background:rgba(202,246,236,.18)}
+.plan-btn{width:100%;padding:11px;background:var(--bg);border:1px solid var(--border);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;transition:all .13s;letter-spacing:-.01em}
+.plan-btn:hover{border-color:var(--border2);background:var(--bg2)}
+.plan.feat .plan-btn{background:var(--green);border-color:var(--green);color:var(--dark)}
+.plan.feat .plan-btn:hover{opacity:.9}
+
+/* ══════════════════════════════════
+   MODALS
+══════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(3px)}
+.overlay.hide{display:none}
+.modal{background:white;border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:1.2rem;font-weight:500;letter-spacing:-.04em;color:var(--tx);margin-bottom:.5rem}
+.modal p{font-size:13px;font-weight:400;color:var(--tm);line-height:1.65;margin-bottom:1.25rem;letter-spacing:-.01em}
+.modal-ico{width:44px;height:44px;border-radius:10px;background:var(--gp);display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+.modal-stack{display:flex;flex-direction:column;gap:8px;margin-top:.5rem}
+
+/* code inputs */
+.code-row{display:flex;gap:7px;justify-content:center;margin-bottom:1.1rem}
+.ci{width:44px;height:52px;text-align:center;font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:500;border:1px solid var(--border);border-radius:9px;outline:none;color:var(--tx);background:var(--bg2);transition:all .13s}
+.ci:focus{border-color:var(--green);background:var(--bg);box-shadow:0 0 0 3px rgba(94,201,145,.1)}
+.ci.filled{border-color:var(--green);background:#F2FCF7}
+.code-resend{font-size:12px;font-weight:400;color:var(--ts);text-align:center;margin-bottom:1.25rem;letter-spacing:-.01em}
+.code-resend a{color:var(--gm);font-weight:500;cursor:pointer}
+
+/* onboarding steps */
+.ob-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem}
+.ob-step{display:flex;gap:12px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
+.ob-num{width:24px;height:24px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--gm);flex-shrink:0;margin-top:1px}
+.ob-txt strong{font-size:13px;font-weight:500;color:var(--tx);display:block;letter-spacing:-.02em;margin-bottom:2px}
+.ob-txt span{font-size:12px;font-weight:400;color:var(--tm);line-height:1.5;letter-spacing:-.01em}
+.sources-list{display:flex;flex-direction:column;gap:6px;margin:-.25rem 0 1rem}
+.src{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;font-size:13px;font-weight:400;color:var(--tm);letter-spacing:-.01em}
+.src-ico{width:28px;height:28px;border-radius:7px;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* ══════════════════════════════════
+   DASHBOARD
+══════════════════════════════════ */
+#dash-wrap{display:none;min-height:100vh;background:var(--bg2)}
+#dash-wrap.on{display:block}
+
+/* Top nav */
+.dash-nav{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
+.dash-nav-inner{max-width:var(--W);margin:0 auto;padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between}
+@media(max-width:640px){.dash-nav-inner{padding:0 1rem}}
+.dash-nav-right{display:flex;align-items:center;gap:10px}
+.dash-plan{display:inline-flex;align-items:center;gap:5px;background:var(--gp);color:var(--gm);font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;letter-spacing:.03em}
+.dash-av{width:32px;height:32px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--dark)}
+
+/* Sub-nav tabs */
+.dash-tabs{border-bottom:1px solid var(--border);background:var(--bg)}
+.dash-tabs-inner{max-width:var(--W);margin:0 auto;padding:0 2rem;display:flex;gap:0;overflow-x:auto}
+@media(max-width:640px){.dash-tabs-inner{padding:0 1rem}}
+.d-tab{padding:14px 16px;font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;border-bottom:2px solid transparent;transition:all .13s;white-space:nowrap;letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
+.d-tab:hover{color:var(--tx)}
+.d-tab.on{color:var(--tx);border-bottom-color:var(--dark)}
+
+/* Dashboard body */
+.d-body{max-width:var(--W);margin:0 auto;padding:1.5rem 2rem 4rem;display:grid;grid-template-columns:1fr 296px;gap:1.25rem;align-items:start}
+@media(max-width:900px){.d-body{grid-template-columns:1fr}}
+@media(max-width:640px){.d-body{padding:1rem 1rem 3rem}}
+
+/* Section containers */
+.d-section{display:none}
+.d-section.on{display:contents}
+
+/* Banner */
+.d-banner{grid-column:1/-1;border-radius:14px;padding:1.75rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  background:radial-gradient(ellipse 90% 120% at 70% 0%,#B0EDD8 0%,var(--gp) 22%,#E4F9F2 45%,#F7FDFB 70%);
+  border:1px solid #C0EAE0}
+.db-l{}
+.db-greet{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--gm);margin-bottom:5px}
+.db-title{font-size:1.6rem;font-weight:500;letter-spacing:-.05em;color:var(--dark);line-height:1.15}
+.db-hl{color:var(--gm)}
+.db-sub{font-size:13px;font-weight:400;color:var(--tm);margin-top:4px;letter-spacing:-.02em}
+.db-stats{display:flex;gap:8px;flex-wrap:wrap}
+.db-st{background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);backdrop-filter:blur(8px);border-radius:10px;padding:.7rem 1rem;text-align:center;min-width:72px}
+.db-sv{font-size:1.25rem;font-weight:500;color:var(--dark);line-height:1;letter-spacing:-.05em}
+.db-sl{font-size:10px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+
+/* Start protocol CTA */
+.proto-start-card{grid-column:1/-1;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:var(--sh)}
+.ps-left{}
+.ps-badge{display:inline-flex;align-items:center;gap:5px;background:var(--gp);color:var(--gm);font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:.625rem}
+.ps-title{font-size:1.05rem;font-weight:500;letter-spacing:-.03em;color:var(--tx);margin-bottom:.25rem}
+.ps-sub{font-size:13px;font-weight:400;color:var(--tm);letter-spacing:-.01em}
+
+/* D-cards */
+.dc{background:var(--bg);border:1px solid var(--border);border-radius:13px;padding:1.25rem;margin-bottom:1rem;box-shadow:var(--sh)}
+.dc:last-child{margin-bottom:0}
+.dc-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.dc-t{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--ts)}
+.dc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gp);color:var(--gm);font-size:11px;font-weight:500;padding:3px 9px;border-radius:100px}
+.dc-bdot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:pu 2s ease-in-out infinite}
+
+/* Tasks */
+.t-list{display:flex;flex-direction:column;gap:7px}
+.t-task{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .13s}
+.t-task:hover{border-color:var(--border2)}
+.t-task.dn{opacity:.5}
+.t-task.dn .t-ck{background:var(--green);border-color:var(--green)}
+.t-task.dn .t-ck svg{display:block}
+.t-task.dn .t-nm{text-decoration:line-through;color:var(--ts)}
+.t-ck{width:19px;height:19px;border-radius:50%;border:1px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.t-ck svg{display:none}
+.t-bd{flex:1}
+.t-nm{font-size:13px;font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.t-s{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-.01em}
+.t-tm{font-size:11px;font-weight:500;color:var(--ts)}
+
+/* Week */
+.w-row{display:flex;gap:5px}
+.w-b{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.w-n{font-size:9px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.05em}
+.w-c{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--ts);cursor:pointer;transition:all .13s}
+.w-c:hover{border-color:var(--border2)}
+.w-done{background:var(--green);border-color:var(--green);color:white}
+.w-today{background:var(--dark);border-color:var(--dark);color:white}
+
+/* Progress */
+.prg-i{margin-bottom:11px}
+.prg-i:last-child{margin-bottom:0}
+.prg-h{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.prg-nm{font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.prg-pc{font-weight:500;color:var(--gm);letter-spacing:-.02em}
+.prg-tr{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prg-f{height:100%;background:var(--green);border-radius:3px;transition:width 1.2s ease}
+
+/* Protocol items */
+.dp-i{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.dp-i:last-child{border-bottom:none}
+.dp-ico{width:34px;height:34px;background:var(--gp);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.dp-bd{flex:1}
+.dp-nm{font-size:13px;font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.dp-d{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-.01em}
+.dp-dose{text-align:right}
+.dp-v{font-size:12px;font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.dp-f{font-size:10px;font-weight:400;color:var(--ts)}
+
+/* ── SIDEBAR ── */
+.d-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.d-mt{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:.875rem 1rem;box-shadow:var(--sh)}
+.dm-l{font-size:10px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.dm-v{font-size:1.4rem;font-weight:500;color:var(--tx);line-height:1;letter-spacing:-.05em;margin-bottom:2px}
+.dm-s{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-.01em}
+
+/* check-in */
+.ckin{background:var(--dark);border-radius:13px;padding:1.25rem;margin-bottom:1rem}
+.ck-l{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:rgba(202,246,236,.45);margin-bottom:.7rem}
+.ck-q{font-size:1rem;font-weight:500;color:white;margin-bottom:.875rem;line-height:1.35;letter-spacing:-.03em}
+.ck-sc{display:flex;gap:5px;margin-bottom:.875rem}
+.ck-b{flex:1;aspect-ratio:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:500;color:rgba(255,255,255,.35);cursor:pointer;transition:all .13s}
+.ck-b:hover{background:rgba(202,246,236,.1);color:var(--green)}
+.ck-b.sel{background:rgba(202,246,236,.15);border-color:rgba(202,246,236,.3);color:var(--green)}
+.btn-ck{width:100%;padding:10px;background:var(--green);color:var(--dark);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;border-radius:8px;border:none;cursor:pointer;letter-spacing:-.01em}
+.btn-ck:hover{opacity:.88}
+
+/* tip items */
+.tip-i{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tip-i:last-child{border-bottom:none}
+.tip-ico{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tip-t{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:2px;letter-spacing:-.02em}
+.tip-s{font-size:11px;font-weight:400;color:var(--ts);line-height:1.5;letter-spacing:-.01em}
+.tip-link{font-size:11px;font-weight:500;color:var(--gm);letter-spacing:-.01em;cursor:pointer;margin-top:2px;display:inline-block}
+
+/* ── CALCULATOR SECTION ── */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.calc-grid{grid-template-columns:1fr}}
+.calc-sel{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:1rem}
+.calc-opt{padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .13s;text-align:center}
+.calc-opt:hover{border-color:var(--border2)}
+.calc-opt.sel{border-color:var(--green);background:#F2FCF7}
+.calc-opt .c-nm{font-size:13px;font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.calc-opt .c-cat{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-.01em;margin-top:2px}
+.calc-result{background:var(--gp);border-radius:12px;padding:1.25rem;text-align:center}
+.calc-dose-lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--gm);margin-bottom:.5rem}
+.calc-dose-val{font-size:2.8rem;font-weight:500;color:var(--dark);letter-spacing:-.05em;line-height:1}
+.calc-dose-unit{font-size:.55em;color:var(--gm)}
+.calc-dose-note{font-size:12px;font-weight:400;color:var(--gm);margin-top:.5rem;line-height:1.5;letter-spacing:-.01em}
+.calc-weight-row{display:flex;align-items:center;gap:.875rem;margin-bottom:1rem}
+.calc-weight-lbl{font-size:13px;font-weight:500;color:var(--tm);white-space:nowrap;letter-spacing:-.02em;min-width:42px}
+
+/* ── LIBRARY SECTION ── */
+.lib-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.25rem}
+.lib-f{padding:6px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:100px;font-size:12px;font-weight:500;color:var(--tm);cursor:pointer;transition:all .13s}
+.lib-f:hover{border-color:var(--border2)}
+.lib-f.sel{background:var(--gp);border-color:var(--green);color:var(--gm)}
+.lib-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:640px){.lib-grid{grid-template-columns:1fr}}
+.lib-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;cursor:pointer;transition:all .13s}
+.lib-card:hover{border-color:var(--border2);box-shadow:var(--shm)}
+.lib-cat{display:inline-flex;background:var(--gp);color:var(--gm);font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:100px;margin-bottom:.625rem}
+.lib-nm{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:.25rem;letter-spacing:-.02em}
+.lib-desc{font-size:12px;font-weight:400;color:var(--ts);line-height:1.5;letter-spacing:-.01em}
+.lib-more{font-size:11px;font-weight:500;color:var(--gm);margin-top:.5rem;letter-spacing:-.01em}
+.lib-detail{display:none;margin-top:.875rem;padding-top:.875rem;border-top:1px solid var(--border)}
+.lib-card.expanded .lib-detail{display:block}
+.lib-row{display:flex;gap:8px;margin-bottom:.5rem}
+.lib-rl{font-size:11px;font-weight:500;color:var(--ts);min-width:80px;letter-spacing:-.01em}
+.lib-rv{font-size:12px;font-weight:400;color:var(--tm);letter-spacing:-.01em}
+
+/* ── SETTINGS SECTION ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+@media(max-width:640px){.settings-grid{grid-template-columns:1fr}}
+.settings-head{font-size:1rem;font-weight:500;letter-spacing:-.03em;color:var(--tx);margin-bottom:.375rem}
+.settings-sub{font-size:13px;font-weight:400;color:var(--tm);letter-spacing:-.02em;margin-bottom:1.25rem}
+.diag-answer{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:all .13s}
+.diag-answer:hover{border-color:var(--border2)}
+.da-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ts);margin-bottom:4px}
+.da-val{font-size:14px;font-weight:500;color:var(--tx);letter-spacing:-.02em}
+.da-edit{font-size:11px;font-weight:500;color:var(--gm);margin-top:3px;letter-spacing:-.01em}
+.lock-banner{background:var(--ab);border:1px solid rgba(212,137,58,.22);border-radius:10px;padding:.875rem 1rem;display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
+.lock-ico{width:32px;height:32px;background:rgba(212,137,58,.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.lock-t{font-size:13px;font-weight:500;color:var(--am);letter-spacing:-.02em}
+.lock-s{font-size:12px;font-weight:400;color:rgba(212,137,58,.7);letter-spacing:-.01em}
+
+/* Upsell strip */
+.upsell-strip{background:var(--gp);border:1px solid rgba(94,201,145,.25);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.us-t{font-size:13px;font-weight:500;color:var(--dark);letter-spacing:-.02em}
+.us-s{font-size:12px;font-weight:400;color:var(--gm);letter-spacing:-.01em;margin-top:1px}
+
+/* Responsive */
+@media(max-width:540px){
+  .c2{grid-template-columns:1fr}
+  .r-grid{grid-template-columns:1fr}
+  .d-banner{flex-direction:column;align-items:flex-start}
+  .db-stats{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- EMAIL modal -->
+<div class="overlay hide" id="m-email">
+  <div class="modal">
+    <div class="modal-ico"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M2 6l8 5 8-5M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="#3A8F68" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h3>Informe seu e-mail</h3>
+    <p id="email-modal-sub">Para liberar o acesso ao seu protocolo, informe seu melhor e-mail.</p>
+    <input class="inp" id="m-email-in" type="email" placeholder="seu@email.com" autocomplete="email" style="margin-bottom:.875rem">
+    <div class="modal-stack">
+      <button class="btn btn-dark btn-full" onclick="submitEmail()">Continuar →</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('m-email')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CODE modal -->
+<div class="overlay hide" id="m-code">
+  <div class="modal">
+    <div class="modal-ico"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4M5 10a7 7 0 1014 0 7 7 0 00-14 0z" stroke="#3A8F68" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h3>Confirme seu e-mail</h3>
+    <p>Enviamos um código de 6 dígitos para <strong id="code-email-show">—</strong>. Insira abaixo para confirmar.</p>
+    <div class="code-row">
+      <input class="ci" id="ci1" type="text" maxlength="1" inputmode="numeric" oninput="cm(this,'ci2')">
+      <input class="ci" id="ci2" type="text" maxlength="1" inputmode="numeric" oninput="cm(this,'ci3')" onkeydown="cp(event,'ci1')">
+      <input class="ci" id="ci3" type="text" maxlength="1" inputmode="numeric" oninput="cm(this,'ci4')" onkeydown="cp(event,'ci2')">
+      <input class="ci" id="ci4" type="text" maxlength="1" inputmode="numeric" oninput="cm(this,'ci5')" onkeydown="cp(event,'ci3')">
+      <input class="ci" id="ci5" type="text" maxlength="1" inputmode="numeric" oninput="cm(this,'ci6')" onkeydown="cp(event,'ci4')">
+      <input class="ci" id="ci6" type="text" maxlength="1" inputmode="numeric" oninput="cm(this,null)" onkeydown="cp(event,'ci5')">
+    </div>
+    <div class="code-resend">Não recebeu? <a onclick="resend()">Reenviar código</a></div>
+    <div class="modal-stack">
+      <button class="btn btn-dark btn-full" onclick="verifyCode()">Verificar e entrar →</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('m-code')">Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING modal -->
+<div class="overlay hide" id="m-onboard">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-ico" style="background:var(--gp)"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M10 2l2.09 6.26H19l-5.45 3.95 2.09 6.26L10 14.51l-5.64 3.96 2.09-6.26L1 7.26h6.91L10 2z" stroke="#3A8F68" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+    <h3 id="ob-title">Bem-vindo ao Nuvita</h3>
+    <p id="ob-sub">Seu protocolo está pronto. Antes de iniciar, veja como funciona a plataforma.</p>
+
+    <div id="ob-step1">
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-num">1</div><div class="ob-txt"><strong>Seu protocolo personalizado</strong><span>Com base no diagnóstico, montamos exatamente o que você precisa tomar, quando e como.</span></div></div>
+        <div class="ob-step"><div class="ob-num">2</div><div class="ob-txt"><strong>Tenha os peptídeos em mãos</strong><span>Para iniciar o acompanhamento, você precisa ter os compostos disponíveis. Abaixo veja onde encontrar.</span></div></div>
+        <div class="ob-step"><div class="ob-num">3</div><div class="ob-txt"><strong>Inicie e acompanhe</strong><span>Quando estiver com os produtos, dê o start — e a plataforma acompanha cada dia do seu ciclo.</span></div></div>
+      </div>
+      <div class="modal-stack">
+        <button class="btn btn-dark btn-full" onclick="obStep(2)">Onde encontrar os peptídeos →</button>
+        <button class="btn btn-green btn-full" onclick="closeOnboard()">Já tenho os produtos — iniciar</button>
+      </div>
+    </div>
+
+    <div id="ob-step2" style="display:none">
+      <p style="margin-bottom:.75rem">Peptídeos são compostos manipulados. Você pode obtê-los através de:</p>
+      <div class="sources-list">
+        <div class="src"><div class="src-ico">🏥</div>Farmácias de manipulação especializadas</div>
+        <div class="src"><div class="src-ico">🌐</div>Fornecedores internacionais (uso pessoal)</div>
+        <div class="src"><div class="src-ico">🩺</div>Clínicas de medicina integrativa e longevidade</div>
+        <div class="src"><div class="src-ico">💬</div>Via suporte Nuvita — nosso time indica fontes confiáveis</div>
+      </div>
+      <div class="modal-stack">
+        <button class="btn btn-dark btn-full" onclick="closeOnboard()">Entendido — iniciar plataforma</button>
+        <button class="btn btn-outline btn-full" onclick="obStep(1)">← Voltar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- START PROTOCOL modal -->
+<div class="overlay hide" id="m-start">
+  <div class="modal">
+    <div class="modal-ico"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M5 10l4 4 8-8M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="#3A8F68" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h3>Pronto para iniciar o protocolo?</h3>
+    <p>Confirme que você tem os peptídeos em mãos. A partir de hoje, a plataforma vai acompanhar cada aplicação e ajustar conforme sua evolução.</p>
+    <div class="ob-steps" style="margin-bottom:1.1rem">
+      <div class="ob-step"><div class="ob-num">✓</div><div class="ob-txt"><strong>Dia de início: hoje</strong><span id="start-date-show">—</span></div></div>
+      <div class="ob-step"><div class="ob-num">!</div><div class="ob-txt"><strong>Primeiro check-in em 7 dias</strong><span>Avalie como seu corpo está respondendo ao protocolo.</span></div></div>
+    </div>
+    <div class="modal-stack">
+      <button class="btn btn-dark btn-full" onclick="startProto()">Iniciar protocolo agora →</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('m-start')">Ainda não estou pronto</button>
+    </div>
+  </div>
+</div>
+
+<!-- DIAG UPDATE modal -->
+<div class="overlay hide" id="m-diag">
+  <div class="modal" style="max-width:480px">
+    <h3>Atualizar diagnóstico</h3>
+    <p>Altere as respostas abaixo. Isso recalibrará seu protocolo. Esta ação só pode ser feita 1x por semana.</p>
+    <div id="diag-edit-fields" style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem"></div>
+    <div class="modal-stack">
+      <button class="btn btn-dark btn-full" onclick="saveDiag()">Salvar alterações</button>
+      <button class="btn btn-outline btn-full" onclick="closeModal('m-diag')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ QUIZ ═══════ -->
+<div id="quiz-wrap" class="on">
+  <nav class="q-nav">
+    <div class="q-nav-inner">
+      <svg width="88" height="19" viewBox="0 0 156 34" fill="none"><g><path d="M19.6318 6.74985C21.3477 7.44837 22.8113 8.4565 24.0225 9.76911C25.2337 11.0817 26.1598 12.6784 26.7982 14.5539C27.4366 16.4294 27.7571 18.5275 27.7571 20.8483V33.0789H22.3571V20.5924C22.3571 19.0239 22.1552 17.6422 21.7515 16.4473C21.3477 15.2524 20.785 14.2392 20.0608 13.4025C19.3366 12.5658 18.4459 11.9363 17.386 11.509C16.3262 11.0817 15.1226 10.8694 13.7776 10.8694C12.4327 10.8694 11.229 11.0817 10.1692 11.509C9.10938 11.9363 8.21863 12.5658 7.49442 13.4025C6.77021 14.2392 6.21507 15.2524 5.82899 16.4473C5.44292 17.6422 5.24862 19.0239 5.24862 20.5924V33.0789H0V20.8483C0 18.4943 .320468 16.3885 .958882 14.5283C1.5973 12.6681 2.5158 11.0817 3.70936 9.76911C4.90291 8.4565 6.35133 7.44837 8.04956 6.74985C9.74779 6.05132 11.6756 5.70078 13.8281 5.70078C15.9805 5.70078 17.916 6.05132 19.6318 6.74985Z" fill="#353B39"/><path d="M36.8413 6.57074V19.2107C36.8413 20.7459 37.0356 22.1097 37.4217 23.3046C37.8078 24.4995 38.3629 25.5051 39.0871 26.3239C39.8113 27.1427 40.6945 27.7644 41.7366 28.1918C42.7788 28.6191 43.9572 28.8314 45.2694 28.8314C46.5815 28.8314 47.7675 28.6191 48.8273 28.1918C49.8871 27.7644 50.7779 27.135 51.5021 26.2983C52.2263 25.4616 52.7815 24.4561 53.1675 23.279C53.5536 22.102 53.7479 20.7459 53.7479 19.2107V6.57074H58.9965V18.9548C58.9965 21.2756 58.6761 23.3635 58.0376 25.2237C57.3992 27.0838 56.4807 28.6626 55.2872 29.9573C54.0936 31.2545 52.6452 32.2524 50.947 32.9509C49.2487 33.6495 47.3385 34 45.2189 34C43.0993 34 41.1891 33.6495 39.4908 32.9509C37.7926 32.2524 36.3442 31.2545 35.1506 29.9573C33.9571 28.6626 33.0386 27.0838 32.4002 25.2237C31.7618 23.3635 31.4413 21.2756 31.4413 18.9548V6.57074H36.8413Z" fill="#353B39"/><path d="M68.1816 6.57074C68.1816 9.06035 68.4162 11.4323 68.8881 13.6839C69.36 15.9356 70.0564 18.026 70.9825 19.9527C71.9086 21.882 73.0592 23.6117 74.4395 25.1469C75.8173 26.6821 77.3994 27.9947 79.1835 29.0873H75.6003C77.3843 28.0306 78.9564 26.741 80.319 25.2237C81.6816 23.7064 82.8247 21.9818 83.7508 20.0551C84.6768 18.1284 85.3733 16.0303 85.8452 13.7607C86.317 11.4911 86.5694 9.09618 86.6022 6.57074H92.1536C92.1536 9.23179 91.8584 11.8749 91.2704 14.5027C90.6825 17.1305 89.8321 19.6022 88.7218 21.9229C87.6115 24.2437 86.2489 26.3674 84.6339 28.2941C83.019 30.2234 81.1845 31.8174 79.133 33.0789H75.6003C73.5488 31.8507 71.7319 30.272 70.1498 28.3453C68.5676 26.4186 67.2151 24.2846 66.0871 21.9485C64.9592 19.6124 64.1013 17.1305 63.5133 14.5027C62.9254 11.8749 62.6301 9.23179 62.6301 6.57074H68.1816Z" fill="#353B39"/><path d="M126.477 33.0789C126.477 30.4178 126.772 27.7747 127.36 25.1469C127.948 22.5191 128.806 20.0372 129.934 17.7011C131.062 15.365 132.414 13.231 133.996 11.3043C135.578 9.37763 137.393 7.79892 139.447 6.57074H142.979C145.031 7.83218 146.865 9.42881 148.48 11.3555C150.095 13.2822 151.458 15.4059 152.568 17.7267C153.679 20.0474 154.529 22.5191 155.117 25.1469C155.705 27.7747 156 30.4178 156 33.0789H150.449C150.416 30.5534 150.163 28.1585 149.692 25.8889C149.22 23.6194 148.523 21.5212 147.597 19.5945C146.671 17.6678 145.528 15.9433 144.165 14.4259C142.803 12.9061 141.231 11.6191 139.447 10.5623H143.03C141.246 11.6549 139.666 12.9675 138.286 14.5027C136.906 16.0379 135.752 17.7702 134.829 19.6969C133.903 21.6236 133.206 23.714 132.735 25.9657C132.263 28.2173 132.028 30.5893 132.028 33.0789H126.477Z" fill="#353B39"/><path d="M95.8856 11.3811H101.286V33.0789H95.8856V11.3811Z" fill="#353B39"/><path d="M95.8856 .481037H101.286V6.57074H95.8856V.481037Z" fill="#353B39"/><path d="M111.48 18.7809C111.48 21.8846 112.187 24.2565 113.6 25.894C115.013 27.5316 116.587 28.2839 119.691 28.2839C120.229 28.2839 122.482 28.2685 122.482 28.2685V33.0789C122.482 33.1531 117.688 33.0789 116.981 33.0789C114.977 33.0789 111.672 32.2319 109.436 29.6553C107.198 27.0787 106.08 23.4889 106.08 18.8832V0H111.48V18.7809ZM109.159 6.0897H122.381V10.9001H109.159V6.0897Z" fill="#353B39"/></g></svg>
+      <div class="q-step-lbl" id="qlbl">Diagnóstico</div>
+    </div>
+  </nav>
+  <div class="q-prog-bar"><div class="q-prog-fill" id="qpb" style="width:0%"></div></div>
+
+  <div class="q-content">
+
+    <!-- 0: WELCOME -->
+    <div class="screen on" id="s0">
+      <div class="welcome-grid">
+        <div>
+          <div class="pill" style="margin-bottom:1.5rem"><div class="pill-dot"></div>Diagnóstico personalizado</div>
+          <h1 style="font-size:clamp(2.4rem,5vw,3.4rem);font-weight:500;letter-spacing:-.05em;line-height:1.04;margin-bottom:1rem">Protocolos com clareza e método para todos.</h1>
+          <p style="font-size:16px;font-weight:400;color:var(--tm);line-height:1.7;margin-bottom:2rem;letter-spacing:-.02em;max-width:440px">10 perguntas para montar um protocolo de peptídeos feito para o seu perfil, objetivo e estilo de vida.</p>
+          <div style="display:flex;gap:.875rem;margin-bottom:2rem;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ts)"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="2" y="4" width="10" height="8" rx="1.5" stroke="#9EA8A6" stroke-width="1.2"/><path d="M5 4V3a2 2 0 014 0v1" stroke="#9EA8A6" stroke-width="1.2"/></svg>Dados seguros</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ts)"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="#9EA8A6" stroke-width="1.2"/><path d="M7 4v3.5L9 9" stroke="#9EA8A6" stroke-width="1.2" stroke-linecap="round"/></svg>~4 minutos</div>
+          </div>
+          <button class="btn btn-dark" onclick="nx()">Iniciar diagnóstico →</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.875rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.875rem">
+            <div class="welcome-stat"><div class="ws-n">10</div><div class="ws-l">Perguntas</div></div>
+            <div class="welcome-stat"><div class="ws-n">4min</div><div class="ws-l">Duração</div></div>
+            <div class="welcome-stat"><div class="ws-n">100%</div><div class="ws-l">Seu perfil</div></div>
+          </div>
+          <div class="welcome-steps">
+            <div class="ws-item"><div class="ws-num">1</div><div class="ws-txt">Responda sobre seu perfil e objetivo</div></div>
+            <div class="ws-item"><div class="ws-num">2</div><div class="ws-txt">Veja seu protocolo personalizado</div></div>
+            <div class="ws-item"><div class="ws-num">3</div><div class="ws-txt">Escolha seu plano e acesse a plataforma</div></div>
+            <div class="ws-item"><div class="ws-num">4</div><div class="ws-txt">Acompanhe cada dia do ciclo</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1-10: QUESTIONS (single col) -->
+    <div class="q-col">
+    <div class="screen" id="s1">
+      <div class="q-num">Pergunta 1 de 10</div><h2 class="q-title">Como você se chama?</h2><p class="q-sub">Vamos personalizar sua experiência com o seu nome.</p>
+      <input class="inp" id="ni" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" style="margin-bottom:1.75rem" oninput="A.nome=this.value.trim();document.getElementById('b1').disabled=!this.value.trim()">
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b1" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s2">
+      <div class="q-num">Pergunta 2 de 10</div><h2 class="q-title">Qual é o seu sexo biológico?</h2><p class="q-sub">Influencia na dosagem e nos compostos indicados para o seu protocolo.</p>
+      <div class="opts c1" id="q2">
+        <div class="opt" data-q="2" data-val="masculino" onclick="so(this)"><div class="o-ico">♂</div><div class="o-bd"><div class="o-t">Masculino</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="2" data-val="feminino" onclick="so(this)"><div class="o-ico">♀</div><div class="o-bd"><div class="o-t">Feminino</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="2" data-val="ni" onclick="so(this)"><div class="o-ico">○</div><div class="o-bd"><div class="o-t">Prefiro não informar</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b2" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s3">
+      <div class="q-num">Pergunta 3 de 10</div><h2 class="q-title">Qual é o seu principal objetivo?</h2><p class="q-sub">Escolha o que mais representa o que você quer alcançar agora.</p>
+      <div class="opts c2" id="q3">
+        <div class="opt" data-q="3" data-val="gordura" onclick="so(this)"><div class="o-ico">🔥</div><div class="o-bd"><div class="o-t">Perda de gordura</div><div class="o-d">Reduzir gordura com manutenção muscular</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="3" data-val="massa" onclick="so(this)"><div class="o-ico">💪</div><div class="o-bd"><div class="o-t">Ganho de massa</div><div class="o-d">Aumentar massa muscular e força</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="3" data-val="recuperacao" onclick="so(this)"><div class="o-ico">🌙</div><div class="o-bd"><div class="o-t">Recuperação e sono</div><div class="o-d">Melhorar descanso e regeneração</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="3" data-val="bem-estar" onclick="so(this)"><div class="o-ico">✨</div><div class="o-bd"><div class="o-t">Bem-estar e longevidade</div><div class="o-d">Energia, vitalidade e saúde duradoura</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b3" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s4">
+      <div class="q-num">Pergunta 4 de 10</div><h2 class="q-title">Qual é a sua experiência com peptídeos?</h2><p class="q-sub">Isso calibra a complexidade e os compostos do seu protocolo.</p>
+      <div class="opts c1" id="q4">
+        <div class="opt" data-q="4" data-val="iniciante" onclick="so(this)"><div class="o-ico">🌱</div><div class="o-bd"><div class="o-t">Nunca usei peptídeos</div><div class="o-d">Estou começando, quero entender do zero</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="4" data-val="intermediario" onclick="so(this)"><div class="o-ico">🧪</div><div class="o-bd"><div class="o-t">Já usei antes</div><div class="o-d">Tenho experiência, mas sem protocolo estruturado</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="4" data-val="avancado" onclick="so(this)"><div class="o-ico">⚗️</div><div class="o-bd"><div class="o-t">Uso regular</div><div class="o-d">Já uso peptídeos e quero otimizar meu protocolo</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b4" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s5">
+      <div class="q-num">Pergunta 5 de 10</div><h2 class="q-title">Qual é o seu perfil físico?</h2><p class="q-sub">Peso e altura são usados para calcular as dosagens com precisão.</p>
+      <div class="sl-g"><div class="sl-row"><span class="sl-l">Peso</span><span class="sl-v" id="pV">75 <span class="sl-u">kg</span></span></div><input type="range" id="peso" min="45" max="150" value="75" step="1" oninput="document.getElementById('pV').innerHTML=this.value+' <span class=\'sl-u\'>kg</span>';ci()"></div>
+      <div class="sl-g"><div class="sl-row"><span class="sl-l">Altura</span><span class="sl-v" id="aV">170 <span class="sl-u">cm</span></span></div><input type="range" id="altura" min="150" max="210" value="170" step="1" oninput="document.getElementById('aV').innerHTML=this.value+' <span class=\'sl-u\'>cm</span>';ci()"></div>
+      <div class="imc-info">IMC: <strong id="imcV">26.0</strong> <span id="imcL" style="color:var(--gm)">— Normal</span></div>
+      <div class="btn-row" style="margin-top:1.5rem"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" onclick="A.peso=document.getElementById('peso').value;A.altura=document.getElementById('altura').value;nx()">Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s6">
+      <div class="q-num">Pergunta 6 de 10</div><h2 class="q-title">Como é a sua rotina de atividade física?</h2><p class="q-sub">Frequência de treino influencia o timing e os compostos recomendados.</p>
+      <div class="opts c1" id="q6">
+        <div class="opt" data-q="6" data-val="sedentario" onclick="so(this)"><div class="o-ico">🪑</div><div class="o-bd"><div class="o-t">Sedentário</div><div class="o-d">Pouca ou nenhuma atividade física regular</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="6" data-val="moderado" onclick="so(this)"><div class="o-ico">🚶</div><div class="o-bd"><div class="o-t">Moderado</div><div class="o-d">1–3 vezes por semana</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="6" data-val="ativo" onclick="so(this)"><div class="o-ico">🏃</div><div class="o-bd"><div class="o-t">Ativo</div><div class="o-d">4–5 vezes por semana, treinos regulares</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="6" data-val="atleta" onclick="so(this)"><div class="o-ico">🏋️</div><div class="o-bd"><div class="o-t">Atleta</div><div class="o-d">Treino diário ou duplo, alto desempenho</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b6" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s7">
+      <div class="q-num">Pergunta 7 de 10</div><h2 class="q-title">Como você avalia a qualidade do seu sono?</h2><p class="q-sub">O sono afeta diretamente a produção hormonal e recuperação.</p>
+      <div class="scale" id="q7">
+        <div class="sc" data-q="7" data-val="1" onclick="ss(this,'q7')"><span>1</span><span class="sc-l">Péssimo</span></div>
+        <div class="sc" data-q="7" data-val="2" onclick="ss(this,'q7')"><span>2</span><span class="sc-l">Ruim</span></div>
+        <div class="sc" data-q="7" data-val="3" onclick="ss(this,'q7')"><span>3</span><span class="sc-l">Regular</span></div>
+        <div class="sc" data-q="7" data-val="4" onclick="ss(this,'q7')"><span>4</span><span class="sc-l">Bom</span></div>
+        <div class="sc" data-q="7" data-val="5" onclick="ss(this,'q7')"><span>5</span><span class="sc-l">Ótimo</span></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b7" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s8">
+      <div class="q-num">Pergunta 8 de 10</div><h2 class="q-title">Qual é o seu nível de estresse no dia a dia?</h2><p class="q-sub">Estresse crônico eleva cortisol e muda a resposta do organismo aos peptídeos.</p>
+      <div class="opts c1" id="q8">
+        <div class="opt" data-q="8" data-val="baixo" onclick="so(this)"><div class="o-ico">😌</div><div class="o-bd"><div class="o-t">Baixo</div><div class="o-d">Vida tranquila, consigo descansar bem</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="8" data-val="moderado" onclick="so(this)"><div class="o-ico">😐</div><div class="o-bd"><div class="o-t">Moderado</div><div class="o-d">Estresse presente mas controlável</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="8" data-val="alto" onclick="so(this)"><div class="o-ico">😤</div><div class="o-bd"><div class="o-t">Alto</div><div class="o-d">Muita pressão, dificuldade de desligar</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b8" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s9">
+      <div class="q-num">Pergunta 9 de 10</div><h2 class="q-title">Por quanto tempo quer seguir o protocolo?</h2><p class="q-sub">A duração estrutura as fases de uso e descanso corretamente.</p>
+      <div class="opts c2" id="q9">
+        <div class="opt" data-q="9" data-val="4sem" onclick="so(this)"><div class="o-ico">📅</div><div class="o-bd"><div class="o-t">4 semanas</div><div class="o-d">Ciclo introdutório</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="9" data-val="8sem" onclick="so(this)"><div class="o-ico">📆</div><div class="o-bd"><div class="o-t">8 semanas</div><div class="o-d">Protocolo padrão</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="9" data-val="12sem" onclick="so(this)"><div class="o-ico">🗓️</div><div class="o-bd"><div class="o-t">12 semanas</div><div class="o-d">Ciclo completo</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+        <div class="opt" data-q="9" data-val="continuo" onclick="so(this)"><div class="o-ico">♾️</div><div class="o-bd"><div class="o-t">Uso contínuo</div><div class="o-d">Manutenção de longo prazo</div></div><div class="o-r"><div class="o-rd"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" id="b9" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <div class="screen" id="s10">
+      <div class="q-num">Pergunta 10 de 10</div><h2 class="q-title">Alguma consideração de saúde?</h2><p class="q-sub">Selecione tudo que se aplica — garante que o protocolo seja seguro para você.</p>
+      <div class="tags" id="q10">
+        <div class="tag" data-val="diabetes" onclick="tt(this)">Diabetes</div>
+        <div class="tag" data-val="hipertensao" onclick="tt(this)">Hipertensão</div>
+        <div class="tag" data-val="tireoide" onclick="tt(this)">Tireoide</div>
+        <div class="tag" data-val="cancro" onclick="tt(this)">Histórico de câncer</div>
+        <div class="tag" data-val="gravidez" onclick="tt(this)">Grávida ou amamentando</div>
+        <div class="tag" data-val="rim" onclick="tt(this)">Problemas renais</div>
+        <div class="tag" data-val="medicacao" onclick="tt(this)">Medicação contínua</div>
+        <div class="tag" data-val="nenhuma" onclick="tt(this,true)">Nenhuma das anteriores</div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="pv()">← Voltar</button><button class="btn btn-dark" onclick="gr()">Ver meu protocolo →</button></div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="screen" id="sresult">
+      <div class="r-head">
+        <div class="pill" style="margin-bottom:1rem"><svg width="7" height="7" viewBox="0 0 7 7"><circle cx="3.5" cy="3.5" r="3" fill="currentColor"/></svg>Protocolo gerado</div>
+        <div class="r-nm" id="rnm"></div>
+        <h2 class="r-title">Seu protocolo <span class="r-hl" id="rfc">está pronto.</span></h2>
+        <p class="r-desc" id="rdesc"></p>
+      </div>
+      <div class="r-grid">
+        <div class="rc"><div class="rc-l">Objetivo</div><div class="rc-v" id="rv1">—</div></div>
+        <div class="rc"><div class="rc-l">Duração</div><div class="rc-v" id="rv2">—</div></div>
+        <div class="rc"><div class="rc-l">Perfil</div><div class="rc-v" id="rv3">—</div></div>
+        <div class="rc"><div class="rc-l">Nível</div><div class="rc-v" id="rv4">—</div></div>
+      </div>
+      <div class="proto-card"><div class="proto-lbl">Protocolo recomendado</div><ul class="p-list" id="pl"></ul></div>
+      <div class="gate">
+        <div class="gate-box">
+          <div class="gate-ico"><svg width="22" height="22" fill="none" viewBox="0 0 22 22"><path d="M11 2L13.9 8.26L21 9.27L16 14.14L17.18 21.02L11 17.77L4.82 21.02L6 14.14L1 9.27L8.1 8.26L11 2Z" stroke="#3A8F68" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+          <h3 class="gate-title">Protocolo completo e acompanhamento contínuo</h3>
+          <p class="gate-sub">Dosagens exatas, calendário de uso, check-ins semanais e ajustes automáticos — ou desbloqueie o básico agora mesmo de graça.</p>
+          <button class="btn btn-dark btn-full" onclick="gt('pricing')">Ver planos e continuar →</button>
+        </div>
+        <div class="disc" style="margin-top:1.25rem">Este protocolo é informativo e educacional. Não substitui orientação médica profissional.</div>
+        <div class="btn-row" style="margin-top:1rem"><button class="btn btn-outline" onclick="rst()">↺ Refazer diagnóstico</button></div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="screen" id="spricing">
+      <div class="grad" style="border-radius:14px;padding:2rem;margin-bottom:1.5rem;text-align:center">
+        <div class="pill" style="margin-bottom:1rem">Simples, justo, sem surpresa</div>
+        <h2 style="font-size:clamp(1.8rem,4vw,2.4rem)">Escolha como você quer evoluir.</h2>
+        <p style="font-size:14px;font-weight:400;color:var(--tm);margin-top:.75rem;letter-spacing:-.02em">Do protocolo básico ao acompanhamento médico completo.</p>
+      </div>
+      <div class="plans-grid">
+        <div class="plan">
+          <div class="plan-tag">Grátis</div>
+          <div class="plan-name">Nuvita Free</div>
+          <div class="plan-price"><span class="p-cur">R$</span><span class="p-amt">0</span></div>
+          <p class="plan-desc">Para quem quer ver o que tomar antes de se comprometer com uma assinatura.</p>
+          <ul class="plan-feats">
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Diagnóstico completo</strong></span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Lista de <strong>peptídeos recomendados</strong></span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Confirmação via <strong>e-mail</strong></span></li>
+          </ul>
+          <button class="plan-btn" onclick="openPlanModal('free')">Desbloquear grátis</button>
+        </div>
+        <div class="plan">
+          <div class="plan-tag">Mais escolhido</div>
+          <div class="plan-name">Nuvita Essencial</div>
+          <div class="plan-price"><span class="p-cur">R$</span><span class="p-amt">29</span><span class="p-per">/mês</span></div>
+          <p class="plan-desc">Protocolo completo com dosagens, acompanhamento e calculadora — com total autonomia.</p>
+          <ul class="plan-feats">
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Tudo do Free</strong> incluso</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Dosagens exatas</strong> por peso e objetivo</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Check-ins semanais</strong> e progresso visual</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Calculadora</strong> de dosagem personalizada</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Biblioteca</strong> completa de peptídeos</span></li>
+          </ul>
+          <button class="plan-btn" onclick="openPlanModal('essencial')">Começar — R$29/mês</button>
+          <p style="font-size:11px;font-weight:400;color:var(--ts);text-align:center;margin-top:.5rem">Cancele quando quiser.</p>
+        </div>
+        <div class="plan feat">
+          <div class="plan-tag">Completo</div>
+          <div class="plan-name">Nuvita Pro</div>
+          <div class="plan-price"><span class="p-cur">R$</span><span class="p-amt">59</span><span class="p-per">/mês</span></div>
+          <p class="plan-desc">Tudo do Essencial com suporte médico especializado em peptídeos — consultas incluídas.</p>
+          <ul class="plan-feats">
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Tudo do Essencial</strong> incluso</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Médico parceiro</strong> no seu protocolo</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Consultas periódicas</strong> inclusas</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Ajustes supervisionados</strong> pelo médico</span></li>
+            <li class="pf"><div class="pf-c"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Prescrição médica</strong> quando necessário</span></li>
+          </ul>
+          <button class="plan-btn" onclick="openPlanModal('pro')">Começar com suporte médico →</button>
+          <p style="font-size:11px;font-weight:400;color:rgba(255,255,255,.3);text-align:center;margin-top:.5rem">Cancele quando quiser.</p>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn btn-outline" onclick="gt('result')">← Voltar ao protocolo</button></div>
+    </div>
+
+    </div><!-- /q-col -->
+  </div><!-- /q-content -->
+</div><!-- /quiz-wrap -->
+
+<!-- ═══════ DASHBOARD ═══════ -->
+<div id="dash-wrap">
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <svg width="80" height="17" viewBox="0 0 156 34" fill="none"><g><path d="M19.6318 6.74985C21.3477 7.44837 22.8113 8.4565 24.0225 9.76911C25.2337 11.0817 26.1598 12.6784 26.7982 14.5539C27.4366 16.4294 27.7571 18.5275 27.7571 20.8483V33.0789H22.3571V20.5924C22.3571 19.0239 22.1552 17.6422 21.7515 16.4473C21.3477 15.2524 20.785 14.2392 20.0608 13.4025C19.3366 12.5658 18.4459 11.9363 17.386 11.509C16.3262 11.0817 15.1226 10.8694 13.7776 10.8694C12.4327 10.8694 11.229 11.0817 10.1692 11.509C9.10938 11.9363 8.21863 12.5658 7.49442 13.4025C6.77021 14.2392 6.21507 15.2524 5.82899 16.4473C5.44292 17.6422 5.24862 19.0239 5.24862 20.5924V33.0789H0V20.8483C0 18.4943 .320468 16.3885 .958882 14.5283C1.5973 12.6681 2.5158 11.0817 3.70936 9.76911C4.90291 8.4565 6.35133 7.44837 8.04956 6.74985C9.74779 6.05132 11.6756 5.70078 13.8281 5.70078C15.9805 5.70078 17.916 6.05132 19.6318 6.74985Z" fill="#353B39"/><path d="M36.8413 6.57074V19.2107C36.8413 20.7459 37.0356 22.1097 37.4217 23.3046C37.8078 24.4995 38.3629 25.5051 39.0871 26.3239C39.8113 27.1427 40.6945 27.7644 41.7366 28.1918C42.7788 28.6191 43.9572 28.8314 45.2694 28.8314C46.5815 28.8314 47.7675 28.6191 48.8273 28.1918C49.8871 27.7644 50.7779 27.135 51.5021 26.2983C52.2263 25.4616 52.7815 24.4561 53.1675 23.279C53.5536 22.102 53.7479 20.7459 53.7479 19.2107V6.57074H58.9965V18.9548C58.9965 21.2756 58.6761 23.3635 58.0376 25.2237C57.3992 27.0838 56.4807 28.6626 55.2872 29.9573C54.0936 31.2545 52.6452 32.2524 50.947 32.9509C49.2487 33.6495 47.3385 34 45.2189 34C43.0993 34 41.1891 33.6495 39.4908 32.9509C37.7926 32.2524 36.3442 31.2545 35.1506 29.9573C33.9571 28.6626 33.0386 27.0838 32.4002 25.2237C31.7618 23.3635 31.4413 21.2756 31.4413 18.9548V6.57074H36.8413Z" fill="#353B39"/><path d="M68.1816 6.57074C68.1816 9.06035 68.4162 11.4323 68.8881 13.6839C69.36 15.9356 70.0564 18.026 70.9825 19.9527C71.9086 21.882 73.0592 23.6117 74.4395 25.1469C75.8173 26.6821 77.3994 27.9947 79.1835 29.0873H75.6003C77.3843 28.0306 78.9564 26.741 80.319 25.2237C81.6816 23.7064 82.8247 21.9818 83.7508 20.0551C84.6768 18.1284 85.3733 16.0303 85.8452 13.7607C86.317 11.4911 86.5694 9.09618 86.6022 6.57074H92.1536C92.1536 9.23179 91.8584 11.8749 91.2704 14.5027C90.6825 17.1305 89.8321 19.6022 88.7218 21.9229C87.6115 24.2437 86.2489 26.3674 84.6339 28.2941C83.019 30.2234 81.1845 31.8174 79.133 33.0789H75.6003C73.5488 31.8507 71.7319 30.272 70.1498 28.3453C68.5676 26.4186 67.2151 24.2846 66.0871 21.9485C64.9592 19.6124 64.1013 17.1305 63.5133 14.5027C62.9254 11.8749 62.6301 9.23179 62.6301 6.57074H68.1816Z" fill="#353B39"/><path d="M126.477 33.0789C126.477 30.4178 126.772 27.7747 127.36 25.1469C127.948 22.5191 128.806 20.0372 129.934 17.7011C131.062 15.365 132.414 13.231 133.996 11.3043C135.578 9.37763 137.393 7.79892 139.447 6.57074H142.979C145.031 7.83218 146.865 9.42881 148.48 11.3555C150.095 13.2822 151.458 15.4059 152.568 17.7267C153.679 20.0474 154.529 22.5191 155.117 25.1469C155.705 27.7747 156 30.4178 156 33.0789H150.449C150.416 30.5534 150.163 28.1585 149.692 25.8889C149.22 23.6194 148.523 21.5212 147.597 19.5945C146.671 17.6678 145.528 15.9433 144.165 14.4259C142.803 12.9061 141.231 11.6191 139.447 10.5623H143.03C141.246 11.6549 139.666 12.9675 138.286 14.5027C136.906 16.0379 135.752 17.7702 134.829 19.6969C133.903 21.6236 133.206 23.714 132.735 25.9657C132.263 28.2173 132.028 30.5893 132.028 33.0789H126.477Z" fill="#353B39"/><path d="M95.8856 11.3811H101.286V33.0789H95.8856V11.3811Z" fill="#353B39"/><path d="M95.8856 .481037H101.286V6.57074H95.8856V.481037Z" fill="#353B39"/><path d="M111.48 18.7809C111.48 21.8846 112.187 24.2565 113.6 25.894C115.013 27.5316 116.587 28.2839 119.691 28.2839C120.229 28.2839 122.482 28.2685 122.482 28.2685V33.0789C122.482 33.1531 117.688 33.0789 116.981 33.0789C114.977 33.0789 111.672 32.2319 109.436 29.6553C107.198 27.0787 106.08 23.4889 106.08 18.8832V0H111.48V18.7809ZM109.159 6.0897H122.381V10.9001H109.159V6.0897Z" fill="#353B39"/></g></svg>
+      <div class="dash-nav-right">
+        <div class="dash-plan" id="d-plntag">Free</div>
+        <div style="font-size:13px;font-weight:500;color:var(--tx);letter-spacing:-.02em" id="dnn">—</div>
+        <div class="dash-av" id="dav">—</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dash-tabs">
+    <div class="dash-tabs-inner">
+      <div class="d-tab on" onclick="dTab('inicio',this)">🏠 Início</div>
+      <div class="d-tab" onclick="dTab('protocolo',this)">🧬 Protocolo</div>
+      <div class="d-tab" onclick="dTab('calculadora',this)">🧮 Calculadora</div>
+      <div class="d-tab" onclick="dTab('biblioteca',this)">📚 Biblioteca</div>
+      <div class="d-tab" onclick="dTab('config',this)">⚙️ Configurações</div>
+    </div>
+  </div>
+
+  <div class="d-body">
+
+    <!-- INICIO SECTION -->
+    <div class="d-section on" id="sec-inicio" style="display:contents">
+      <div class="d-banner">
+        <div class="db-l">
+          <div class="db-greet">Bem-vindo(a) de volta</div>
+          <div class="db-title">Olá, <span class="db-hl" id="dbnm">você</span>. Protocolo ativo.</div>
+          <div class="db-sub" id="dbsub">Semana 1 — Início do ciclo</div>
+        </div>
+        <div class="db-stats">
+          <div class="db-st"><div class="db-sv" id="db-ad">—</div><div class="db-sl">Adesão</div></div>
+          <div class="db-st"><div class="db-sv">1</div><div class="db-sl">Semana</div></div>
+          <div class="db-st"><div class="db-sv" id="db-sem">8</div><div class="db-sl">Ciclo</div></div>
+        </div>
+      </div>
+
+      <!-- Start CTA (shown until started) -->
+      <div class="proto-start-card" id="proto-start-cta">
+        <div class="ps-left">
+          <div class="ps-badge"><div class="pill-dot"></div>Protocolo pronto</div>
+          <div class="ps-title">Seu protocolo está configurado e aguardando.</div>
+          <div class="ps-sub">Quando você tiver os peptídeos em mãos, dê o start e comece o acompanhamento.</div>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <button class="btn btn-dark" onclick="openModal('m-start')">Iniciar protocolo →</button>
+          <button class="btn btn-outline" onclick="openModal('m-onboard')">Como funciona?</button>
+        </div>
+      </div>
+
+      <!-- MAIN COLUMN -->
+      <div>
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Tarefas de hoje</div><div class="dc-badge"><div class="dc-bdot"></div>Dia 1</div></div>
+          <div class="t-list" id="tkl"></div>
+        </div>
+
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Adesão semanal</div><div style="font-size:12px;font-weight:500;color:var(--gm)" id="adpct">0 / 7 dias</div></div>
+          <div class="w-row" id="wr">
+            <div class="w-b"><div class="w-n">Seg</div><div class="w-c w-today" onclick="td(this)">•</div></div>
+            <div class="w-b"><div class="w-n">Ter</div><div class="w-c" onclick="td(this)"></div></div>
+            <div class="w-b"><div class="w-n">Qua</div><div class="w-c" onclick="td(this)"></div></div>
+            <div class="w-b"><div class="w-n">Qui</div><div class="w-c" onclick="td(this)"></div></div>
+            <div class="w-b"><div class="w-n">Sex</div><div class="w-c" onclick="td(this)"></div></div>
+            <div class="w-b"><div class="w-n">Sáb</div><div class="w-c" onclick="td(this)"></div></div>
+            <div class="w-b"><div class="w-n">Dom</div><div class="w-c" onclick="td(this)"></div></div>
+          </div>
+        </div>
+
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Progresso do ciclo</div><div style="font-size:12px;font-weight:500;color:var(--ts)">Semana 1</div></div>
+          <div class="prg-i"><div class="prg-h"><span class="prg-nm">Adesão ao protocolo</span><span class="prg-pc" id="prga">0%</span></div><div class="prg-tr"><div class="prg-f" id="pfa" style="width:0%"></div></div></div>
+          <div class="prg-i"><div class="prg-h"><span class="prg-nm">Duração do ciclo</span><span class="prg-pc">12%</span></div><div class="prg-tr"><div class="prg-f" style="width:12%"></div></div></div>
+          <div class="prg-i"><div class="prg-h"><span class="prg-nm">Check-ins realizados</span><span class="prg-pc">0%</span></div><div class="prg-tr"><div class="prg-f" style="width:0%"></div></div></div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div>
+        <div class="d-metrics">
+          <div class="d-mt"><div class="dm-l">Objetivo</div><div class="dm-v" id="dmobj" style="font-size:.95rem;color:var(--dark)">—</div></div>
+          <div class="d-mt"><div class="dm-l">Ciclo</div><div class="dm-v" id="dmdur">—</div><div class="dm-s">em andamento</div></div>
+          <div class="d-mt"><div class="dm-l">Peso</div><div class="dm-v" id="dmpeso">—</div></div>
+          <div class="d-mt"><div class="dm-l">IMC</div><div class="dm-v" id="dmimc">—</div><div class="dm-s" id="dmimcs">—</div></div>
+        </div>
+
+        <div class="ckin">
+          <div class="ck-l">Check-in semanal</div>
+          <div class="ck-q">Como você está se sentindo hoje?</div>
+          <div class="ck-sc" id="cks">
+            <div class="ck-b" onclick="cksel(this)">1</div><div class="ck-b" onclick="cksel(this)">2</div><div class="ck-b" onclick="cksel(this)">3</div><div class="ck-b" onclick="cksel(this)">4</div><div class="ck-b" onclick="cksel(this)">5</div>
+          </div>
+          <button class="btn-ck" onclick="submitCk(this)">Registrar check-in</button>
+        </div>
+
+        <div class="dc" id="d-upsell">
+          <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--gm);margin-bottom:.625rem">Upgrade disponível</div>
+          <div style="font-size:14px;font-weight:500;color:var(--dark);letter-spacing:-.03em;margin-bottom:.375rem">Adicionar suporte médico</div>
+          <div style="font-size:12px;font-weight:400;color:var(--tm);line-height:1.55;margin-bottom:1rem;letter-spacing:-.01em">Tenha um médico especialista revisando seu protocolo com consultas periódicas.</div>
+          <button class="btn btn-dark btn-full" onclick="gt('pricing')">Ver plano Pro →</button>
+        </div>
+
+        <div class="disc">Este protocolo é informativo. Não substitui orientação médica.</div>
+      </div>
+    </div>
+
+    <!-- PROTOCOLO SECTION -->
+    <div class="d-section" id="sec-protocolo" style="display:none">
+      <div style="grid-column:1/-1">
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Protocolo ativo</div><div class="dc-badge" id="dnvl">Iniciante</div></div>
+          <div id="dpl"></div>
+        </div>
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Resumo do protocolo</div></div>
+          <div class="r-grid">
+            <div class="rc"><div class="rc-l">Objetivo</div><div class="rc-v" id="pr-obj">—</div></div>
+            <div class="rc"><div class="rc-l">Duração</div><div class="rc-v" id="pr-dur">—</div></div>
+            <div class="rc"><div class="rc-l">Nível</div><div class="rc-v" id="pr-niv">—</div></div>
+            <div class="rc"><div class="rc-l">Estilo de vida</div><div class="rc-v" id="pr-est">—</div></div>
+          </div>
+          <div class="disc">Dosagens e compostos são sugestões baseadas no seu diagnóstico. Sempre consulte um profissional antes de iniciar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALCULADORA SECTION -->
+    <div class="d-section" id="sec-calculadora" style="display:none">
+      <div style="grid-column:1/-1">
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Calculadora de dosagem</div></div>
+          <p style="font-size:13px;font-weight:400;color:var(--tm);margin-bottom:1.25rem;letter-spacing:-.02em">Selecione o peptídeo e ajuste seu peso para calcular a dose recomendada.</p>
+          <div class="calc-grid">
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Selecione o peptídeo</div>
+              <div class="calc-sel" id="calc-opts">
+                <div class="calc-opt sel" data-p="0" onclick="calcSel(this,0)"><div class="c-nm">AOD-9604</div><div class="c-cat">Lipólise</div></div>
+                <div class="calc-opt" data-p="1" onclick="calcSel(this,1)"><div class="c-nm">Ipamorelin</div><div class="c-cat">GH</div></div>
+                <div class="calc-opt" data-p="2" onclick="calcSel(this,2)"><div class="c-nm">BPC-157</div><div class="c-cat">Recuperação</div></div>
+                <div class="calc-opt" data-p="3" onclick="calcSel(this,3)"><div class="c-nm">CJC-1295</div><div class="c-cat">GH</div></div>
+                <div class="calc-opt" data-p="4" onclick="calcSel(this,4)"><div class="c-nm">Epithalon</div><div class="c-cat">Longevidade</div></div>
+                <div class="calc-opt" data-p="5" onclick="calcSel(this,5)"><div class="c-nm">Selank</div><div class="c-cat">Cognitivo</div></div>
+              </div>
+              <div style="font-size:12px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Peso atual</div>
+              <div class="calc-weight-row">
+                <span class="calc-weight-lbl">Peso</span>
+                <input type="range" id="calc-peso" min="45" max="150" value="75" style="margin-bottom:0" oninput="updateCalc()">
+                <span style="font-size:14px;font-weight:500;color:var(--tx);min-width:50px;letter-spacing:-.03em" id="calc-peso-lbl">75 kg</span>
+              </div>
+            </div>
+            <div>
+              <div class="calc-result" id="calc-result">
+                <div class="calc-dose-lbl">Dose recomendada</div>
+                <div class="calc-dose-val" id="calc-val">300 <span class="calc-dose-unit">mcg</span></div>
+                <div class="calc-dose-note" id="calc-note">1x ao dia, pela manhã em jejum.</div>
+              </div>
+              <div class="dc" style="margin-top:1rem;margin-bottom:0">
+                <div class="dc-t" style="margin-bottom:.75rem">Como usar</div>
+                <div id="calc-how" style="font-size:13px;font-weight:400;color:var(--tm);line-height:1.65;letter-spacing:-.01em"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIBLIOTECA SECTION -->
+    <div class="d-section" id="sec-biblioteca" style="display:none">
+      <div style="grid-column:1/-1">
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Biblioteca de peptídeos</div></div>
+          <div class="lib-filters" id="lib-filters">
+            <div class="lib-f sel" onclick="libFilter('todos',this)">Todos</div>
+            <div class="lib-f" onclick="libFilter('gh',this)">GH / Secretagogos</div>
+            <div class="lib-f" onclick="libFilter('recuperacao',this)">Recuperação</div>
+            <div class="lib-f" onclick="libFilter('longevidade',this)">Longevidade</div>
+            <div class="lib-f" onclick="libFilter('cognitivo',this)">Cognitivo</div>
+          </div>
+          <div class="lib-grid" id="lib-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES SECTION -->
+    <div class="d-section" id="sec-config" style="display:none">
+      <div style="grid-column:1/-1">
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Perfil e conta</div></div>
+          <div class="settings-grid" style="margin-bottom:1.5rem">
+            <div class="d-mt"><div class="dm-l">Nome</div><div class="dm-v" id="cfg-nome" style="font-size:1rem">—</div></div>
+            <div class="d-mt"><div class="dm-l">E-mail</div><div class="dm-v" id="cfg-email" style="font-size:.85rem;letter-spacing:-.01em">—</div></div>
+            <div class="d-mt"><div class="dm-l">Plano</div><div class="dm-v" id="cfg-plano" style="font-size:1rem">—</div></div>
+            <div class="d-mt"><div class="dm-l">Membro desde</div><div class="dm-v" style="font-size:.9rem" id="cfg-since">—</div></div>
+          </div>
+        </div>
+
+        <div class="dc">
+          <div class="dc-h"><div class="dc-t">Atualizar diagnóstico</div></div>
+          <div class="settings-sub">Ajuste as respostas do seu diagnóstico para recalibrar o protocolo. Esta ação pode ser feita 1x por semana.</div>
+          <div id="lock-banner-wrap"></div>
+          <div class="settings-grid" id="diag-grid"></div>
+          <div id="diag-update-btn-wrap" style="margin-top:1rem"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const T=10;let cur=0;const A={};let protoStarted=false;let activePlan='free';
+
+const PR={gordura:[{e:'🔥',n:'AOD-9604',d:'Fragmento do GH, lipólise seletiva sem efeitos anabólicos',v:'300mcg',f:'Manhã em jejum',cat:'gordura'},{e:'🌿',n:'CJC-1295 / Ipamorelin',d:'Estimulação de GH, composição corporal e sono',v:'100/200mcg',f:'Antes de dormir',cat:'gordura'},{e:'💊',n:'Semaglutide (GLP-1)',d:'Regulação do apetite e controle glicêmico',v:'0.25mg',f:'1x por semana',cat:'gordura'}],massa:[{e:'💪',n:'Ipamorelin',d:'Secretagogo do GH, estímulo anabólico limpo',v:'200–300mcg',f:'3x ao dia',cat:'gh'},{e:'🔄',n:'BPC-157',d:'Recuperação muscular e tendinosa acelerada',v:'250mcg',f:'2x ao dia',cat:'recuperacao'},{e:'⚡',n:'IGF-1 LR3',d:'Fator de crescimento, síntese proteica aumentada',v:'50–100mcg',f:'Pós-treino',cat:'gh'}],recuperacao:[{e:'🔄',n:'BPC-157',d:'Regeneração sistêmica, tecidos e articulações',v:'250mcg',f:'2x ao dia',cat:'recuperacao'},{e:'🌟',n:'Epithalon',d:'Antienvelhecimento, melhora do sono e circadiano',v:'10mg',f:'5 dias / semestre',cat:'longevidade'},{e:'🌙',n:'DSIP',d:'Peptídeo indutor do sono, melhora fases profundas',v:'100–300mcg',f:'Antes de dormir',cat:'sono'}],'bem-estar':[{e:'🌟',n:'Epithalon',d:'Longevidade, regulação do telômero e bem-estar',v:'10mg',f:'5 dias / semestre',cat:'longevidade'},{e:'🧠',n:'Selank',d:'Ansiolítico natural, clareza mental e foco',v:'250mcg',f:'2x ao dia',cat:'cognitivo'},{e:'🛡️',n:'Thymosin Alpha-1',d:'Suporte imunológico e vitalidade celular',v:'1.5mg',f:'2x por semana',cat:'longevidade'}]};
+
+const LIB=[
+  {n:'Ipamorelin',cat:'gh',desc:'Secretagogo seletivo do GH. Estimula a glândula pituitária a liberar hormônio do crescimento sem impactar cortisol ou prolactina.',dose:'200–300mcg',freq:'2–3x ao dia',prec:'Evitar uso contínuo sem ciclos de descanso.',uso:'Composição corporal, recuperação, sono'},
+  {n:'CJC-1295',cat:'gh',desc:'Análogo do GHRH que aumenta a meia-vida da liberação de GH. Geralmente combinado com Ipamorelin para efeito sinérgico.',dose:'100mcg',freq:'Antes de dormir',prec:'Monitorar retenção hídrica.',uso:'Ganho de massa, recuperação'},
+  {n:'BPC-157',cat:'recuperacao',desc:'Peptídeo citoprotetor derivado da proteína de proteção gástrica. Acelera regeneração de tecidos musculares, tendíneos e ligamentares.',dose:'250–500mcg',freq:'1–2x ao dia',prec:'Evitar em casos de tumores ativos.',uso:'Lesões, recuperação cirúrgica, intestino'},
+  {n:'AOD-9604',cat:'gh',desc:'Fragmento C-terminal do GH humano. Promove lipólise sem os efeitos anabólicos ou no metabolismo de glicose do GH completo.',dose:'300–500mcg',freq:'1x ao dia em jejum',prec:'Monitorar glicemia se diabético.',uso:'Perda de gordura, composição corporal'},
+  {n:'Epithalon',cat:'longevidade',desc:'Tetrapeptídeo que regula o comprimento dos telômeros e estimula a produção de telomerase. Associado a efeitos antienvelhecimento.',dose:'10mg total',freq:'5 dias consecutivos, 2x/ano',prec:'Dados a longo prazo ainda limitados em humanos.',uso:'Longevidade, sono, antienvelhecimento'},
+  {n:'Selank',cat:'cognitivo',desc:'Análogo sintético da tuftosina. Modulador da ansiedade com efeitos nootropicos — melhora foco, memória e reduz estresse sem sedação.',dose:'250mcg',freq:'2x ao dia',prec:'Evitar combinação com benzodiazepínicos.',uso:'Ansiedade, foco, performance cognitiva'},
+  {n:'Thymosin Alpha-1',cat:'longevidade',desc:'Peptídeo imunomodulador. Estimula a maturação de células T e a resposta imune inata. Usado em protocolos de longevidade e inflamação crônica.',dose:'1.5mg',freq:'2x por semana',prec:'Contraindicado em doenças autoimunes ativas.',uso:'Imunidade, vitalidade, longevidade'},
+  {n:'DSIP',cat:'sono',desc:'Peptídeo indutor do sono. Modula os ciclos de sono profundo (NREM), melhora a qualidade do descanso e reduz cortisol noturno.',dose:'100–300mcg',freq:'Antes de dormir',prec:'Pode causar sonolência residual inicial.',uso:'Insônia, qualidade do sono, recuperação'},
+];
+
+const CALC_PEPTIDES=[
+  {n:'AOD-9604',base:5,unit:'mcg/kg',freq:'1x ao dia, manhã em jejum',how:'Reconstituir em água bacteriostática. Aplicação subcutânea no abdômen. Melhor resultado em jejum de 30min antes e após.'},
+  {n:'Ipamorelin',base:2.5,unit:'mcg/kg',freq:'2–3x ao dia',how:'Aplicação subcutânea. Melhor horário: ao acordar, pré-treino e antes de dormir. Evitar carboidratos 30min antes/depois.'},
+  {n:'BPC-157',base:3.5,unit:'mcg/kg',freq:'2x ao dia',how:'Aplicação subcutânea próxima à área lesionada quando possível. Pode ser tomado oral para problemas gastrointestinais.'},
+  {n:'CJC-1295',base:1.5,unit:'mcg/kg',freq:'Antes de dormir',how:'Geralmente combinado com Ipamorelin (proporção 1:2). Aplicação subcutânea. Evitar após refeições ricas em carboidratos.'},
+  {n:'Epithalon',base:10,unit:'mg total',freq:'5 dias consecutivos',how:'Protocolo semestral. Aplicação IV ou subcutânea. Dose fixa de 10mg por ciclo. Não há ajuste por peso neste caso.'},
+  {n:'Selank',base:3,unit:'mcg/kg',freq:'2x ao dia',how:'Pode ser usado intranasal (solução 0.15%) ou subcutâneo. Início gradual recomendado. Efeitos notados em 1–2 semanas.'},
+];
+
+const OM={gordura:'Perda de gordura',massa:'Ganho de massa',recuperacao:'Recuperação e sono','bem-estar':'Bem-estar'};
+const DM={'4sem':'4 semanas','8sem':'8 semanas','12sem':'12 semanas',continuo:'Contínuo'};
+const SM={'4sem':'4sem','8sem':'8sem','12sem':'12sem',continuo:'∞'};
+const NM={iniciante:'Iniciante',intermediario:'Intermediário',avancado:'Avançado'};
+const EM={sedentario:'Sedentário',moderado:'Ativo mod.',ativo:'Ativo',atleta:'Atleta'};
+const FM={gordura:'para perda de gordura',massa:'para ganho de massa',recuperacao:'para recuperação','bem-estar':'para bem-estar'};
+const DsM={gordura:'Protocolo focado em lipólise, controle de apetite e preservação de massa magra.',massa:'Protocolo anabólico com foco em síntese proteica, recuperação e estímulo de GH.',recuperacao:'Protocolo regenerativo com foco em sono, tecidos e ritmo circadiano.','bem-estar':'Protocolo de longevidade com foco em sistema imune, clareza mental e vitalidade.'};
+
+// ── QUIZ NAV ──
+function sid(s){if(s==='result')return'sresult';if(s==='pricing')return'spricing';return's'+s}
+function up(){let p=cur==='result'||cur==='pricing'?100:Math.round((cur/T)*100);document.getElementById('qpb').style.width=p+'%';const c=document.getElementById('qlbl');if(cur===0)c.textContent='Diagnóstico';else if(cur==='result')c.textContent='Protocolo pronto';else if(cur==='pricing')c.textContent='Planos';else c.textContent=cur+' de '+T}
+function gt(s){if(s==='dashboard'){ld();return}const l=document.getElementById(sid(cur));l.classList.add('bye');setTimeout(()=>{l.classList.remove('bye','on');cur=s;document.getElementById(sid(s)).classList.add('on');up();window.scrollTo({top:0,behavior:'smooth'})},210)}
+function nx(){if(cur===0){gt(1);return}gt(cur+1)}
+function pv(){if(cur<=1){gt(0);return}gt(cur-1)}
+function so(el){const q=el.dataset.q;document.querySelectorAll('[data-q="'+q+'"]').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');A['q'+q]=el.dataset.val;const b=document.getElementById('b'+q);if(b)b.disabled=false}
+function ss(el,g){document.querySelectorAll('#'+g+' .sc').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');A['q'+el.dataset.q]=el.dataset.val;const b=document.getElementById('b'+el.dataset.q);if(b)b.disabled=false}
+function tt(el,ex){if(ex){document.querySelectorAll('#q10 .tag').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');}else{document.querySelector('#q10 [data-val="nenhuma"]')?.classList.remove('sel');el.classList.toggle('sel');}A.q10=Array.from(document.querySelectorAll('#q10 .tag.sel')).map(t=>t.dataset.val)}
+function ci(){const p=+document.getElementById('peso').value,a=+document.getElementById('altura').value/100,imc=(p/(a*a)).toFixed(1);document.getElementById('imcV').textContent=imc;document.getElementById('imcL').textContent=imc<18.5?'— Abaixo do peso':imc<25?'— Normal':imc<30?'— Sobrepeso':'— Obesidade'}
+
+// build protocol list
+function bpl(id,obj,lk,dash){const el=document.getElementById(id);el.innerHTML='';(PR[obj]||[]).forEach((item,i)=>{if(dash){const d=document.createElement('div');d.className='dp-i';d.innerHTML=`<div class="dp-ico">${item.e}</div><div class="dp-bd"><div class="dp-nm">${item.n}</div><div class="dp-d">${item.d}</div></div><div class="dp-dose"><div class="dp-v">${item.v}</div><div class="dp-f">${item.f}</div></div>`;el.appendChild(d)}else{const li=document.createElement('li');li.className='p-item'+(i>=lk?' locked':'');li.innerHTML=`<div class="p-num">0${i+1}</div><div><div class="p-name">${item.n}</div><div class="p-det">${item.d}</div></div><div class="p-dose"><div class="p-dv">${item.v}</div><div class="p-df">${item.f}</div></div>`;el.appendChild(li)}})}
+
+function gr(){A.peso=document.getElementById('peso').value;A.altura=document.getElementById('altura').value;const obj=A.q3||'gordura',nivel=A.q4||'iniciante',estilo=A.q6||'moderado',dur=A.q9||'8sem';document.getElementById('rnm').textContent=A.nome?'Olá, '+A.nome+'.':'';document.getElementById('rfc').textContent=FM[obj]||'está pronto';document.getElementById('rdesc').textContent=DsM[obj]||'';document.getElementById('rv1').textContent=OM[obj]||obj;document.getElementById('rv2').textContent=DM[dur]||dur;document.getElementById('rv4').textContent=NM[nivel]||nivel;document.getElementById('rv3').textContent=EM[estilo]+' · '+A.peso+'kg';bpl('pl',obj,1,false);gt('result')}
+
+// ── PLAN MODAL ──
+function openPlanModal(plan){A.pendingPlan=plan;const sub={free:'Para liberar o acesso gratuito ao seu protocolo.',essencial:'Para criar sua conta no plano Essencial (R$29/mês).',pro:'Para criar sua conta no plano Pro com suporte médico (R$59/mês).'};document.getElementById('email-modal-sub').textContent=sub[plan]||'';openModal('m-email')}
+function openModal(id){document.getElementById(id).classList.remove('hide')}
+function closeModal(id){document.getElementById(id).classList.add('hide')}
+
+// ── EMAIL + CODE ──
+function submitEmail(){const em=document.getElementById('m-email-in').value;if(!em||!em.includes('@')){document.getElementById('m-email-in').style.borderColor='rgba(212,137,58,.5)';document.getElementById('m-email-in').focus();return}A.email=em;A.plano=A.pendingPlan||'free';document.getElementById('code-email-show').textContent=em;closeModal('m-email');openModal('m-code');setTimeout(()=>document.getElementById('ci1').focus(),100)}
+function cm(el,next){el.classList.toggle('filled',el.value!=='');if(el.value&&next)document.getElementById(next)?.focus()}
+function cp(e,prev){if(e.key==='Backspace'&&!e.target.value)document.getElementById(prev)?.focus()}
+function verifyCode(){const code=[...document.querySelectorAll('.ci')].map(i=>i.value).join('');if(code.length<6){document.querySelectorAll('.ci').forEach(i=>i.style.borderColor='rgba(212,137,58,.4)');return}closeModal('m-code');gt('dashboard')}
+function resend(){[...document.querySelectorAll('.ci')].forEach(i=>{i.value='';i.classList.remove('filled');i.style.borderColor=''});setTimeout(()=>document.getElementById('ci1').focus(),100)}
+
+// ── ONBOARDING ──
+function obStep(n){document.getElementById('ob-step1').style.display=n===1?'block':'none';document.getElementById('ob-step2').style.display=n===2?'block':'none'}
+function closeOnboard(){closeModal('m-onboard');openModal('m-start')}
+
+// ── START PROTOCOL ──
+function startProto(){const today=new Date();document.getElementById('start-date-show').textContent=today.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});protoStarted=true;closeModal('m-start');const el=document.getElementById('proto-start-cta');if(el){el.innerHTML=`<div class="ps-left"><div class="ps-badge"><div class="pill-dot"></div>Protocolo iniciado</div><div class="ps-title">Ciclo em andamento — ${today.toLocaleDateString('pt-BR')}</div><div class="ps-sub">Registre cada aplicação no tracker semanal para acompanhar sua adesão.</div></div>`;}}
+
+// ── DASHBOARD LOAD ──
+function ld(){const obj=A.q3||'gordura',dur=A.q9||'8sem',nivel=A.q4||'iniciante',nome=A.nome||'você';activePlan=A.plano||'free';document.getElementById('quiz-wrap').classList.remove('on');document.getElementById('dash-wrap').classList.add('on');document.getElementById('dbnm').textContent=nome;document.getElementById('dnn').textContent=nome;document.getElementById('dav').textContent=nome.charAt(0).toUpperCase();const ptag={free:'Free',essencial:'Essencial',pro:'Pro ✦'};document.getElementById('d-plntag').textContent=ptag[activePlan]||'Free';document.getElementById('dbsub').textContent='Semana 1 — '+DM[dur]+' de ciclo';document.getElementById('db-sem').textContent=SM[dur];document.getElementById('dmobj').textContent=OM[obj]||obj;document.getElementById('dmdur').textContent=SM[dur];const p=+(A.peso||75),a=+(A.altura||170)/100,imc=(p/(a*a)).toFixed(1);document.getElementById('dmpeso').textContent=(A.peso||'—')+'kg';document.getElementById('dmimc').textContent=imc;document.getElementById('dmimcs').textContent=imc<25?'Normal':imc<30?'Sobrepeso':'Obesidade';document.getElementById('dnvl').textContent=NM[nivel]||nivel;// protocol section
+document.getElementById('pr-obj').textContent=OM[obj]||obj;document.getElementById('pr-dur').textContent=DM[dur]||dur;document.getElementById('pr-niv').textContent=NM[nivel]||nivel;document.getElementById('pr-est').textContent=EM[A.q6||'moderado'];bpl('dpl',obj,999,true);buildTasks(obj);buildLib('todos');initCalc();// hide upsell if pro
+if(activePlan==='pro'){const u=document.getElementById('d-upsell');if(u)u.style.display='none'}// config section
+document.getElementById('cfg-nome').textContent=nome;document.getElementById('cfg-email').textContent=A.email||'—';document.getElementById('cfg-plano').textContent=ptag[activePlan]||'Free';document.getElementById('cfg-since').textContent=new Date().toLocaleDateString('pt-BR');buildDiagGrid();buildDiagStartDate();// show onboarding on first load
+setTimeout(()=>openModal('m-onboard'),600)}
+
+function buildDiagStartDate(){document.getElementById('start-date-show').textContent=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}
+
+// ── TASKS ──
+function buildTasks(obj){const l=document.getElementById('tkl');l.innerHTML='';(PR[obj]||[]).forEach(t=>{const d=document.createElement('div');d.className='t-task';d.onclick=function(){this.classList.toggle('dn');ua()};d.innerHTML=`<div class="t-ck"><svg width="9" height="9" fill="none" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2L7.5 2" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="t-bd"><div class="t-nm">${t.e} ${t.n}</div><div class="t-s">${t.f}</div></div><div class="t-tm">${t.v}</div>`;l.appendChild(d)})}
+function ua(){const dn=document.querySelectorAll('.t-task.dn').length,tot=document.querySelectorAll('.t-task').length,p=tot?Math.round((dn/tot)*100):0;document.getElementById('db-ad').textContent=p+'%';document.getElementById('prga').textContent=p+'%';document.getElementById('pfa').style.width=p+'%'}
+let dd=0;function td(el){const d=el.classList.contains('w-done');if(el.classList.contains('w-today')&&!d){el.classList.add('w-done');el.textContent='✓';dd++}else if(d&&!el.classList.contains('w-today')){el.classList.remove('w-done');el.textContent='';dd--}else if(!d&&!el.classList.contains('w-today')){el.classList.add('w-done');el.textContent='✓';dd++}document.getElementById('adpct').textContent=dd+' / 7 dias'}
+function cksel(el){document.querySelectorAll('#cks .ck-b').forEach(b=>b.classList.remove('sel'));el.classList.add('sel')}
+function submitCk(btn){if(!document.querySelector('#cks .ck-b.sel'))return;btn.textContent='✓ Registrado!';btn.style.background='rgba(202,246,236,.2)';btn.style.color='var(--green)';btn.disabled=true}
+
+// ── DASHBOARD TABS ──
+function dTab(sec,el){document.querySelectorAll('.d-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');const secs=['inicio','protocolo','calculadora','biblioteca','config'];secs.forEach(s=>{const el2=document.getElementById('sec-'+s);if(el2)el2.style.display=s===sec?'contents':'none'})}
+
+// ── CALCULATOR ──
+let calcIdx=0;
+function initCalc(){const p=+(A.peso||75);document.getElementById('calc-peso').value=p;document.getElementById('calc-peso-lbl').textContent=p+' kg';updateCalc()}
+function calcSel(el,idx){document.querySelectorAll('.calc-opt').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');calcIdx=idx;updateCalc()}
+function updateCalc(){const p=+document.getElementById('calc-peso').value;document.getElementById('calc-peso-lbl').textContent=p+' kg';const pep=CALC_PEPTIDES[calcIdx];let dose,unit;if(pep.unit==='mg total'){dose=pep.base;unit='mg'}else{dose=Math.round(p*pep.base);unit='mcg'}document.getElementById('calc-val').innerHTML=dose+' <span class="calc-dose-unit">'+unit+'</span>';document.getElementById('calc-note').textContent=pep.freq;document.getElementById('calc-how').textContent=pep.how}
+
+// ── LIBRARY ──
+function buildLib(filter){const g=document.getElementById('lib-grid');g.innerHTML='';LIB.filter(l=>filter==='todos'||l.cat===filter||l.cat==='sono'&&filter==='recuperacao').forEach(l=>{const d=document.createElement('div');d.className='lib-card';d.innerHTML=`<div class="lib-cat">${l.cat.toUpperCase()}</div><div class="lib-nm">${l.n}</div><div class="lib-desc">${l.desc.slice(0,80)}...</div><div class="lib-more" onclick="toggleLib(this.parentElement)">Ver mais ▾</div><div class="lib-detail"><div class="lib-row"><span class="lib-rl">Dose usual</span><span class="lib-rv">${l.dose}</span></div><div class="lib-row"><span class="lib-rl">Frequência</span><span class="lib-rv">${l.freq}</span></div><div class="lib-row"><span class="lib-rl">Uso indicado</span><span class="lib-rv">${l.uso}</span></div><div class="lib-row"><span class="lib-rl">Atenção</span><span class="lib-rv">${l.prec}</span></div></div>`;g.appendChild(d)})}
+function toggleLib(card){card.classList.toggle('expanded');const m=card.querySelector('.lib-more');m.textContent=card.classList.contains('expanded')?'Ver menos ▴':'Ver mais ▾'}
+function libFilter(cat,el){document.querySelectorAll('.lib-f').forEach(f=>f.classList.remove('sel'));el.classList.add('sel');buildLib(cat)}
+
+// ── SETTINGS / DIAG UPDATE ──
+function buildDiagGrid(){const g=document.getElementById('diag-grid');g.innerHTML='';const answers=[{l:'Objetivo',v:OM[A.q3||'gordura']},{l:'Nível',v:NM[A.q4||'iniciante']},{l:'Atividade',v:{sedentario:'Sedentário',moderado:'Moderado',ativo:'Ativo',atleta:'Atleta'}[A.q6||'moderado']},{l:'Duração',v:DM[A.q9||'8sem']},{l:'Sono',v:(A.q7||'—')+'/5'},{l:'Estresse',v:{baixo:'Baixo',moderado:'Moderado',alto:'Alto'}[A.q8||'moderado']}];answers.forEach(a=>{const d=document.createElement('div');d.className='diag-answer';d.innerHTML=`<div class="da-lbl">${a.l}</div><div class="da-val">${a.v||'—'}</div>`;g.appendChild(d)});const lastUpdate=localStorage.getItem('nuvita_last_diag');const now=Date.now();const sevenDays=7*24*60*60*1000;const wrap=document.getElementById('lock-banner-wrap');const btnWrap=document.getElementById('diag-update-btn-wrap');if(lastUpdate&&(now-+lastUpdate)<sevenDays){const days=Math.ceil((sevenDays-(now-+lastUpdate))/(24*60*60*1000));wrap.innerHTML=`<div class="lock-banner"><div class="lock-ico">🔒</div><div><div class="lock-t">Atualização bloqueada</div><div class="lock-s">Próxima disponível em ${days} dia${days>1?'s':''}. Limite de 1x por semana.</div></div></div>`;btnWrap.innerHTML=''}else{wrap.innerHTML='';btnWrap.innerHTML='<button class="btn btn-dark" onclick="openModal(\'m-diag\')">Atualizar respostas do diagnóstico →</button>'}}
+
+function saveDiag(){localStorage.setItem('nuvita_last_diag',Date.now());closeModal('m-diag');buildDiagGrid()}
+
+// ── RESTART ──
+function rst(){Object.keys(A).forEach(k=>delete A[k]);document.querySelectorAll('.opt,.tag,.sc').forEach(c=>c.classList.remove('sel'));document.querySelectorAll('[id^="b"]').forEach(b=>{if(b.tagName==='BUTTON')b.disabled=true});['ni'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});cur=0;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on','bye'));document.getElementById('s0').classList.add('on');up();window.scrollTo({top:0})}
+
+up();
+</script>
+</body>
+</html>
