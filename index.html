@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico — Nuvita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFFFFF;
+  --bg2:#FAFAFA;
+  --dark:#353B39;
+  --dark2:#2A2F2D;
+  --green:#5EC991;
+  --green-pale:#CAF6EC;
+  --green-mid:#3A8F68;
+  --border:#E8ECEB;
+  --border2:#D4DAD8;
+  --tx:#1A1F1E;
+  --tm:#4A5754;
+  --ts:#8A9896;
+  --am:#D4893A;
+  --ab:#FFF5E6;
+  --sh:0 1px 8px rgba(0,0,0,0.06);
+  --shl:0 4px 24px rgba(0,0,0,0.10);
+}
+html,body{min-height:100vh;background:var(--bg);font-family:'Inter',sans-serif;color:var(--tx);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* GRADIENT HERO BG */
+.grad-bg{
+  background:
+    radial-gradient(ellipse 90% 60% at 75% -5%, #B8F0E2 0%, #D8F7EF 20%, rgba(255,255,255,0.6) 50%, #FFFFFF 75%),
+    radial-gradient(ellipse 50% 40% at 15% 10%, #C8E8E2 0%, transparent 55%);
+}
+
+/* QUIZ WRAPPER */
+.qw{display:none;flex-direction:column;align-items:center;min-height:100vh;padding:0 1rem 4rem}
+.qw.on{display:flex}
+
+/* TOPBAR */
+.qtop{width:100%;max-width:640px;display:flex;align-items:center;justify-content:space-between;padding:1.5rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.qstep{font-size:12px;font-weight:500;color:var(--ts);letter-spacing:0.02em}
+.qprog-wrap{width:100%;max-width:640px;height:2px;background:var(--border);border-radius:1px;margin-bottom:2.5rem}
+.qprog-fill{height:100%;background:var(--green);border-radius:1px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.qcard{width:100%;max-width:640px}
+
+/* SCREENS */
+.screen{display:none;animation:fu .38s ease forwards}
+.screen.on{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fo{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
+.screen.bye{display:block;animation:fo .22s ease forwards}
+
+/* WELCOME */
+.hero-pill{display:inline-flex;align-items:center;gap:7px;background:var(--green-pale);color:var(--green-mid);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:5px 13px;border-radius:100px;margin-bottom:1.5rem}
+.hero-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:bl 2s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.35}}
+.hero-title{font-size:clamp(2.2rem,5.5vw,3.4rem);font-weight:700;line-height:1.04;letter-spacing:-0.05em;color:var(--tx);margin-bottom:1rem}
+.hero-title em{font-style:italic;font-weight:400;color:var(--green-mid)}
+.hero-desc{font-size:16px;font-weight:400;color:var(--tm);line-height:1.7;margin-bottom:2rem;max-width:500px;letter-spacing:-0.02em}
+.hero-stats{display:flex;gap:2rem;padding:1.5rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:2rem}
+.hs-val{font-size:1.5rem;font-weight:700;color:var(--tx);letter-spacing:-0.04em}
+.hs-lbl{font-size:11px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+.hero-pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:2rem}
+.hpill{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ts)}
+
+/* QUESTIONS */
+.q-num{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ts);margin-bottom:.75rem}
+.q-title{font-size:clamp(1.5rem,4vw,2rem);font-weight:700;line-height:1.15;letter-spacing:-0.05em;color:var(--tx);margin-bottom:.5rem}
+.q-sub{font-size:14px;font-weight:400;color:var(--tm);margin-bottom:1.75rem;line-height:1.65;letter-spacing:-0.02em}
+
+/* OPTIONS */
+.opts{display:grid;gap:10px;margin-bottom:2rem}
+.c2{grid-template-columns:1fr 1fr}
+.c1{grid-template-columns:1fr}
+.opt{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;display:flex;align-items:flex-start;gap:12px;transition:all .15s}
+.opt:hover{border-color:var(--border2);background:var(--bg)}
+.opt.sel{border-color:var(--green);background:#F0FDF8}
+.o-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.o-body{flex:1}
+.o-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px;line-height:1.3;letter-spacing:-0.02em}
+.o-desc{font-size:12px;font-weight:400;color:var(--ts);line-height:1.5;letter-spacing:-0.01em}
+.o-radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.opt.sel .o-radio{background:var(--green);border-color:var(--green)}
+.o-dot{width:6px;height:6px;background:white;border-radius:50%;opacity:0;transition:opacity .15s}
+.opt.sel .o-dot{opacity:1}
+
+/* TEXT INPUT */
+.t-in{width:100%;padding:13px 16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--tx);outline:none;margin-bottom:2rem;transition:border-color .15s;letter-spacing:-0.02em}
+.t-in::placeholder{color:var(--ts)}
+.t-in:focus{border-color:var(--green);background:var(--bg);box-shadow:0 0 0 3px rgba(94,201,145,.12)}
+
+/* SLIDERS */
+.sl-g{margin-bottom:1.25rem}
+.sl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.75rem}
+.sl-lbl{font-size:13px;font-weight:500;color:var(--tm);letter-spacing:-0.02em}
+.sl-val{font-size:1.2rem;font-weight:700;color:var(--tx);letter-spacing:-0.04em}
+.sl-unit{font-size:.75em;font-weight:500;color:var(--ts)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin-bottom:1.75rem}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--dark);border:3px solid white;box-shadow:0 0 0 1.5px var(--green),var(--sh);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--dark);border:3px solid white;cursor:pointer}
+.imc-row{font-size:13px;font-weight:400;color:var(--tm);margin-top:-1.25rem;margin-bottom:1.75rem;letter-spacing:-0.02em}
+.imc-n{font-weight:700;color:var(--tx)}
+.imc-s{color:var(--green-mid);font-weight:500}
+
+/* SCALE */
+.scale{display:flex;gap:8px;margin-bottom:2rem}
+.sc-b{flex:1;aspect-ratio:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all .15s;font-size:1.1rem;font-weight:700;color:var(--tm);letter-spacing:-0.02em}
+.sc-b:hover{border-color:var(--border2);background:var(--bg)}
+.sc-b.sel{border-color:var(--green);background:#F0FDF8;color:var(--tx)}
+.sc-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ts)}
+.sc-b.sel .sc-lbl{color:var(--green-mid)}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2rem}
+.tag{padding:8px 16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--tm);cursor:pointer;transition:all .15s;user-select:none;letter-spacing:-0.01em}
+.tag:hover{border-color:var(--border2)}
+.tag.sel{background:#F0FDF8;border-color:var(--green);color:var(--dark);font-weight:600}
+
+/* BUTTONS */
+.btn-p{display:inline-flex;align-items:center;gap:8px;background:var(--dark);color:white;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:-0.02em}
+.btn-p:hover{background:var(--dark2);transform:translateY(-1px)}
+.btn-p:active{transform:none}
+.btn-p:disabled{opacity:.32;cursor:not-allowed;transform:none}
+.btn-g{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--ts);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:12px 18px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;letter-spacing:-0.01em}
+.btn-g:hover{color:var(--tx);border-color:var(--border2)}
+.btn-row{display:flex;align-items:center;gap:10px}
+
+/* RESULT */
+.r-head{text-align:center;padding:1.75rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.75rem}
+.r-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-pale);color:var(--green-mid);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:1rem}
+.r-nm{font-size:15px;font-weight:600;color:var(--green-mid);margin-bottom:.2rem;letter-spacing:-0.02em}
+.r-title{font-size:clamp(1.8rem,5vw,2.4rem);font-weight:700;line-height:1.1;letter-spacing:-0.05em;color:var(--tx);margin-bottom:.75rem}
+.r-title em{font-style:italic;font-weight:400;color:var(--green-mid)}
+.r-desc{font-size:14px;font-weight:400;color:var(--tm);line-height:1.7;max-width:420px;margin:0 auto;letter-spacing:-0.02em}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.5rem}
+.r-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem}
+.r-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ts);margin-bottom:4px}
+.r-val{font-size:14px;font-weight:600;color:var(--tx);line-height:1.35;letter-spacing:-0.02em}
+
+/* PROTOCOL LIST */
+.p-list{list-style:none}
+.p-item{display:flex;align-items:flex-start;gap:12px;padding:.875rem 0;border-bottom:1px solid var(--border)}
+.p-item:last-child{border-bottom:none}
+.p-num{font-size:11px;font-weight:600;color:var(--green-mid);min-width:22px;padding-top:2px;letter-spacing:.02em}
+.p-name{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px;letter-spacing:-0.02em}
+.p-det{font-size:12px;font-weight:400;color:var(--ts);line-height:1.5;letter-spacing:-0.01em}
+.p-dose{margin-left:auto;text-align:right;flex-shrink:0}
+.p-dv{font-size:12px;font-weight:600;color:var(--tx);white-space:nowrap;letter-spacing:-0.02em}
+.p-df{font-size:11px;font-weight:400;color:var(--ts)}
+.p-item.locked{filter:blur(5px);pointer-events:none;user-select:none}
+
+/* GATE */
+.gate{background:linear-gradient(to bottom,rgba(255,255,255,0) 0%,#FFFFFF 28%);margin-top:-50px;padding-top:58px}
+.gate-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:1.25rem;text-align:center}
+.gate-ico{width:48px;height:48px;background:var(--green-pale);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.gate-title{font-size:1.4rem;font-weight:700;line-height:1.25;letter-spacing:-0.04em;color:var(--tx);margin-bottom:.5rem}
+.gate-title em{font-style:italic;font-weight:400;color:var(--green-mid)}
+.gate-sub{font-size:13px;font-weight:400;color:var(--tm);line-height:1.65;margin-bottom:1.5rem;letter-spacing:-0.02em}
+.btn-gate{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--dark);color:white;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;padding:14px 24px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;letter-spacing:-0.02em}
+.btn-gate:hover{background:var(--dark2);transform:translateY(-1px)}
+.disclaimer{padding:.875rem 1rem;background:var(--ab);border:1px solid rgba(212,137,58,.2);border-radius:8px;font-size:12px;font-weight:400;color:var(--am);line-height:1.6;letter-spacing:-0.01em}
+
+/* ─── PRICING ─── */
+.p-head{text-align:center;padding:2rem 0 2rem}
+.p-eyebrow{display:inline-flex;align-items:center;gap:7px;background:var(--green-pale);color:var(--green-mid);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:1.25rem}
+.p-title{font-size:clamp(1.8rem,5vw,2.4rem);font-weight:700;line-height:1.1;letter-spacing:-0.05em;color:var(--tx);margin-bottom:.75rem}
+.p-title em{font-style:italic;font-weight:400;color:var(--green-mid)}
+.p-sub{font-size:14px;font-weight:400;color:var(--tm);line-height:1.7;letter-spacing:-0.02em}
+
+.plans-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.plan{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;transition:all .15s}
+.plan:hover{border-color:var(--border2);box-shadow:var(--sh)}
+.plan.featured{background:var(--dark);border-color:var(--dark);color:white}
+.plan-tag{display:inline-flex;align-items:center;background:var(--green-pale);color:var(--green-mid);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:.875rem}
+.plan.featured .plan-tag{background:var(--green);color:var(--dark)}
+.plan-name{font-size:1rem;font-weight:600;color:var(--tx);margin-bottom:.5rem;letter-spacing:-0.03em}
+.plan.featured .plan-name{color:white}
+.plan-price{display:flex;align-items:baseline;gap:2px;margin-bottom:.25rem}
+.plan-cur{font-size:13px;font-weight:500;color:var(--ts);margin-top:4px}
+.plan.featured .plan-cur{color:rgba(255,255,255,.4)}
+.plan-amt{font-size:2.4rem;font-weight:700;color:var(--tx);line-height:1;letter-spacing:-0.04em}
+.plan.featured .plan-amt{color:var(--green)}
+.plan-per{font-size:12px;font-weight:400;color:var(--ts)}
+.plan.featured .plan-per{color:rgba(255,255,255,.4)}
+.plan-desc{font-size:12px;font-weight:400;color:var(--ts);line-height:1.55;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);letter-spacing:-0.01em}
+.plan.featured .plan-desc{color:rgba(255,255,255,.45);border-color:rgba(255,255,255,.08)}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
+.pf{display:flex;align-items:flex-start;gap:8px;font-size:12px;font-weight:400;color:var(--tm);letter-spacing:-0.01em}
+.plan.featured .pf{color:rgba(255,255,255,.6)}
+.pf strong{color:var(--tx);font-weight:600}
+.plan.featured .pf strong{color:white}
+.pf-ck{width:18px;height:18px;flex-shrink:0;background:var(--green-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.plan.featured .pf-ck{background:rgba(202,246,236,.15)}
+.plan-btn{width:100%;padding:11px;background:var(--bg);border:1.5px solid var(--border);color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .15s;letter-spacing:-0.02em}
+.plan-btn:hover{border-color:var(--border2);background:var(--bg2)}
+.plan.featured .plan-btn{background:var(--green);border-color:var(--green);color:var(--dark)}
+.plan.featured .plan-btn:hover{opacity:.9}
+
+/* EMAIL VERIFICATION MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.modal-overlay.hide{display:none}
+.modal{background:white;border-radius:16px;padding:2rem;max-width:420px;width:100%;box-shadow:var(--shl)}
+.modal-title{font-size:1.3rem;font-weight:700;letter-spacing:-0.04em;color:var(--tx);margin-bottom:.5rem}
+.modal-sub{font-size:13px;font-weight:400;color:var(--tm);line-height:1.6;margin-bottom:1.5rem;letter-spacing:-0.02em}
+.modal-sub strong{color:var(--tx);font-weight:600}
+.code-inputs{display:flex;gap:8px;justify-content:center;margin-bottom:1.25rem}
+.code-input{width:44px;height:52px;text-align:center;font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:700;border:1.5px solid var(--border);border-radius:10px;outline:none;color:var(--tx);background:var(--bg2);transition:all .15s;letter-spacing:0}
+.code-input:focus{border-color:var(--green);background:white;box-shadow:0 0 0 3px rgba(94,201,145,.12)}
+.code-input.filled{border-color:var(--green);background:#F0FDF8}
+.modal-resend{font-size:12px;font-weight:400;color:var(--ts);text-align:center;margin-bottom:1.5rem;letter-spacing:-0.01em}
+.modal-resend a{color:var(--green-mid);font-weight:500;cursor:pointer;text-decoration:none}
+
+/* EMAIL INPUT */
+.e-in{width:100%;padding:13px 16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--tx);outline:none;transition:border-color .15s;letter-spacing:-0.02em}
+.e-in::placeholder{color:var(--ts)}
+.e-in:focus{border-color:var(--green);background:var(--bg);box-shadow:0 0 0 3px rgba(94,201,145,.12)}
+
+/* PRICING EMAIL ROW */
+.p-email-row{margin-bottom:.75rem}
+.p-note{font-size:11px;font-weight:400;color:var(--ts);text-align:center;margin-top:.5rem;letter-spacing:-0.01em}
+
+/* ═══════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════ */
+.dw{display:none;min-height:100vh;background:var(--bg2)}
+.dw.on{display:block}
+
+.d-nav{background:white;border-bottom:1px solid var(--border);padding:0 1.5rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
+.d-nav-right{display:flex;align-items:center;gap:12px}
+.d-nav-name{font-size:13px;font-weight:600;color:var(--tx);letter-spacing:-0.02em}
+.d-avatar{width:32px;height:32px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--dark)}
+.d-plan-tag{display:inline-flex;align-items:center;gap:5px;background:var(--green-pale);color:var(--green-mid);font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;letter-spacing:.04em}
+
+.d-body{max-width:1080px;margin:0 auto;padding:1.5rem 1.5rem 4rem;display:grid;grid-template-columns:1fr 308px;gap:1.25rem;align-items:start}
+
+/* BANNER */
+.d-banner{grid-column:1/-1;border-radius:16px;padding:1.75rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;position:relative;overflow:hidden;
+  background: radial-gradient(ellipse 90% 120% at 70% 0%, #B0EDDE 0%, #CAF6EC 20%, #E4F9F2 45%, #F7FDFB 70%),
+              linear-gradient(160deg, #D0EDE8 0%, #F5FBFA 40%);
+  border:1px solid #C0EAE0}
+.db-left{}
+.db-greeting{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--green-mid);margin-bottom:6px}
+.db-title{font-size:1.6rem;font-weight:700;line-height:1.15;letter-spacing:-0.05em;color:var(--dark)}
+.db-title em{font-style:italic;font-weight:400;color:var(--green-mid)}
+.db-sub{font-size:13px;font-weight:400;color:var(--tm);margin-top:4px;letter-spacing:-0.02em}
+.db-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.db-stat{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);backdrop-filter:blur(8px);border-radius:10px;padding:.75rem 1rem;text-align:center;min-width:76px}
+.db-sv{font-size:1.3rem;font-weight:700;color:var(--dark);line-height:1;letter-spacing:-0.04em}
+.db-sl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+
+/* CARDS */
+.d-card{background:white;border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;box-shadow:var(--sh)}
+.d-card:last-child{margin-bottom:0}
+.d-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.d-card-t{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ts)}
+.d-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-pale);color:var(--green-mid);font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px}
+.d-bdot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:bl 2s ease-in-out infinite}
+
+/* TASKS */
+.t-list{display:flex;flex-direction:column;gap:8px}
+.t-task{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s}
+.t-task:hover{border-color:var(--border2)}
+.t-task.dn{opacity:.55}
+.t-task.dn .t-ck{background:var(--green);border-color:var(--green)}
+.t-task.dn .t-ck svg{display:block}
+.t-task.dn .t-nm{text-decoration:line-through;color:var(--ts)}
+.t-ck{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.t-ck svg{display:none}
+.t-body{flex:1}
+.t-nm{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:1px;letter-spacing:-0.02em}
+.t-sub{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-0.01em}
+.t-time{font-size:11px;font-weight:600;color:var(--ts);white-space:nowrap;letter-spacing:-0.01em}
+
+/* WEEK */
+.w-row{display:flex;gap:5px}
+.w-b{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.w-n{font-size:9px;font-weight:600;color:var(--ts);text-transform:uppercase;letter-spacing:.05em}
+.w-c{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1.5px solid var(--border);color:var(--ts);transition:all .15s;cursor:pointer;letter-spacing:-0.02em}
+.w-c:hover{border-color:var(--border2)}
+.w-done{background:var(--green);border-color:var(--green);color:white}
+.w-today{background:var(--dark);border-color:var(--dark);color:white}
+
+/* PROGRESS */
+.prog-i{margin-bottom:12px}
+.prog-i:last-child{margin-bottom:0}
+.prog-h{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.prog-nm{font-weight:600;color:var(--tx);letter-spacing:-0.02em}
+.prog-pct{font-weight:700;color:var(--green-mid);letter-spacing:-0.02em}
+.prog-tr{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-f{height:100%;background:var(--green);border-radius:3px;transition:width 1.2s ease}
+
+/* PROTOCOL */
+.dp-i{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.dp-i:last-child{border-bottom:none}
+.dp-ico{width:36px;height:36px;background:var(--green-pale);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.dp-b{flex:1}
+.dp-nm{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:1px;letter-spacing:-0.02em}
+.dp-d{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-0.01em}
+.dp-dose{text-align:right}
+.dp-v{font-size:12px;font-weight:700;color:var(--tx);letter-spacing:-0.02em}
+.dp-f{font-size:10px;font-weight:400;color:var(--ts);margin-top:1px}
+
+/* SIDEBAR */
+.d-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.d-met{background:white;border:1px solid var(--border);border-radius:12px;padding:.875rem 1rem;box-shadow:var(--sh)}
+.dm-val{font-size:1.5rem;font-weight:700;color:var(--tx);line-height:1;margin-bottom:2px;letter-spacing:-0.05em}
+.dm-lbl{font-size:10px;font-weight:600;color:var(--ts);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1px}
+.dm-sub{font-size:11px;font-weight:400;color:var(--ts);letter-spacing:-0.01em}
+
+/* CHECK-IN */
+.c-in{background:var(--dark);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.c-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(202,246,236,.5);margin-bottom:.75rem}
+.c-q{font-size:1.05rem;font-weight:600;color:white;margin-bottom:.875rem;line-height:1.35;letter-spacing:-0.03em}
+.c-scale{display:flex;gap:5px;margin-bottom:.875rem}
+.c-b{flex:1;aspect-ratio:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s;letter-spacing:-0.02em}
+.c-b:hover{background:rgba(202,246,236,.12);color:var(--green)}
+.c-b.sel{background:rgba(202,246,236,.18);border-color:rgba(202,246,236,.35);color:var(--green)}
+.btn-ci{width:100%;padding:10px;background:var(--green);color:var(--dark);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;border-radius:8px;border:none;cursor:pointer;transition:opacity .15s;letter-spacing:-0.02em}
+.btn-ci:hover{opacity:.88}
+
+/* TIPS */
+.tip-i{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tip-i:last-child{border-bottom:none}
+.tip-ico{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.tip-t{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px;letter-spacing:-0.02em}
+.tip-s{font-size:11px;font-weight:400;color:var(--ts);line-height:1.5;letter-spacing:-0.01em}
+
+/* NEXT */
+.nx-i{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)}
+.nx-i:last-child{border-bottom:none}
+.nx-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.nx-t{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:1px;letter-spacing:-0.02em}
+.nx-s{font-size:11px;font-weight:400;color:var(--ts);line-height:1.5;letter-spacing:-0.01em}
+
+/* RESPONSIVE */
+@media(max-width:860px){.d-body{grid-template-columns:1fr}.d-metrics{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:580px){
+  .c2{grid-template-columns:1fr}
+  .r-grid{grid-template-columns:1fr}
+  .d-metrics{grid-template-columns:1fr 1fr}
+  .plans-grid{grid-template-columns:1fr}
+  .d-nav{padding:0 1rem}
+  .d-body{padding:1rem 1rem 3rem}
+  .d-banner{flex-direction:column;align-items:flex-start}
+  .db-right{width:100%}
+}
+
+/* LOGO SVG shorthand */
+.logo-svg-g path{fill:var(--dark)}
+</style>
+</head>
+<body>
+
+<!-- ═══ EMAIL VERIFICATION MODAL ═══ -->
+<div class="modal-overlay hide" id="verify-modal">
+  <div class="modal">
+    <div style="width:44px;height:44px;background:var(--green-pale);border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem">
+      <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M2 6l8 5 8-5M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="#3A8F68" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="modal-title">Confirme seu e-mail</div>
+    <div class="modal-sub" id="modal-sub">Enviamos um código de 6 dígitos para <strong id="modal-email-show">—</strong>. Insira abaixo para liberar seu protocolo.</div>
+    <div class="code-inputs">
+      <input class="code-input" type="text" maxlength="1" inputmode="numeric" id="c1" oninput="codeMove(this,'c2')">
+      <input class="code-input" type="text" maxlength="1" inputmode="numeric" id="c2" oninput="codeMove(this,'c3')" onkeydown="codePrev(event,'c1')">
+      <input class="code-input" type="text" maxlength="1" inputmode="numeric" id="c3" oninput="codeMove(this,'c4')" onkeydown="codePrev(event,'c2')">
+      <input class="code-input" type="text" maxlength="1" inputmode="numeric" id="c4" oninput="codeMove(this,'c5')" onkeydown="codePrev(event,'c3')">
+      <input class="code-input" type="text" maxlength="1" inputmode="numeric" id="c5" oninput="codeMove(this,'c6')" onkeydown="codePrev(event,'c4')">
+      <input class="code-input" type="text" maxlength="1" inputmode="numeric" id="c6" oninput="codeMove(this,null)" onkeydown="codePrev(event,'c5')">
+    </div>
+    <div class="modal-resend">Não recebeu? <a onclick="resendCode()">Reenviar código</a></div>
+    <button class="btn-p" style="width:100%;justify-content:center" id="verify-btn" onclick="verifyCode()">Verificar e liberar protocolo →</button>
+    <button class="btn-g" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div class="qw on" id="qw">
+  <div class="qtop">
+    <!-- Logo -->
+    <svg width="96" height="21" viewBox="0 0 156 34" fill="none">
+      <g><path d="M19.6318 6.74985C21.3477 7.44837 22.8113 8.4565 24.0225 9.76911C25.2337 11.0817 26.1598 12.6784 26.7982 14.5539C27.4366 16.4294 27.7571 18.5275 27.7571 20.8483V33.0789H22.3571V20.5924C22.3571 19.0239 22.1552 17.6422 21.7515 16.4473C21.3477 15.2524 20.785 14.2392 20.0608 13.4025C19.3366 12.5658 18.4459 11.9363 17.386 11.509C16.3262 11.0817 15.1226 10.8694 13.7776 10.8694C12.4327 10.8694 11.229 11.0817 10.1692 11.509C9.10938 11.9363 8.21863 12.5658 7.49442 13.4025C6.77021 14.2392 6.21507 15.2524 5.82899 16.4473C5.44292 17.6422 5.24862 19.0239 5.24862 20.5924V33.0789H0V20.8483C0 18.4943 .320468 16.3885 .958882 14.5283C1.5973 12.6681 2.5158 11.0817 3.70936 9.76911C4.90291 8.4565 6.35133 7.44837 8.04956 6.74985C9.74779 6.05132 11.6756 5.70078 13.8281 5.70078C15.9805 5.70078 17.916 6.05132 19.6318 6.74985Z" fill="#353B39"/><path d="M36.8413 6.57074V19.2107C36.8413 20.7459 37.0356 22.1097 37.4217 23.3046C37.8078 24.4995 38.3629 25.5051 39.0871 26.3239C39.8113 27.1427 40.6945 27.7644 41.7366 28.1918C42.7788 28.6191 43.9572 28.8314 45.2694 28.8314C46.5815 28.8314 47.7675 28.6191 48.8273 28.1918C49.8871 27.7644 50.7779 27.135 51.5021 26.2983C52.2263 25.4616 52.7815 24.4561 53.1675 23.279C53.5536 22.102 53.7479 20.7459 53.7479 19.2107V6.57074H58.9965V18.9548C58.9965 21.2756 58.6761 23.3635 58.0376 25.2237C57.3992 27.0838 56.4807 28.6626 55.2872 29.9573C54.0936 31.2545 52.6452 32.2524 50.947 32.9509C49.2487 33.6495 47.3385 34 45.2189 34C43.0993 34 41.1891 33.6495 39.4908 32.9509C37.7926 32.2524 36.3442 31.2545 35.1506 29.9573C33.9571 28.6626 33.0386 27.0838 32.4002 25.2237C31.7618 23.3635 31.4413 21.2756 31.4413 18.9548V6.57074H36.8413Z" fill="#353B39"/><path d="M68.1816 6.57074C68.1816 9.06035 68.4162 11.4323 68.8881 13.6839C69.36 15.9356 70.0564 18.026 70.9825 19.9527C71.9086 21.882 73.0592 23.6117 74.4395 25.1469C75.8173 26.6821 77.3994 27.9947 79.1835 29.0873H75.6003C77.3843 28.0306 78.9564 26.741 80.319 25.2237C81.6816 23.7064 82.8247 21.9818 83.7508 20.0551C84.6768 18.1284 85.3733 16.0303 85.8452 13.7607C86.317 11.4911 86.5694 9.09618 86.6022 6.57074H92.1536C92.1536 9.23179 91.8584 11.8749 91.2704 14.5027C90.6825 17.1305 89.8321 19.6022 88.7218 21.9229C87.6115 24.2437 86.2489 26.3674 84.6339 28.2941C83.019 30.2234 81.1845 31.8174 79.133 33.0789H75.6003C73.5488 31.8507 71.7319 30.272 70.1498 28.3453C68.5676 26.4186 67.2151 24.2846 66.0871 21.9485C64.9592 19.6124 64.1013 17.1305 63.5133 14.5027C62.9254 11.8749 62.6301 9.23179 62.6301 6.57074H68.1816Z" fill="#353B39"/><path d="M126.477 33.0789C126.477 30.4178 126.772 27.7747 127.36 25.1469C127.948 22.5191 128.806 20.0372 129.934 17.7011C131.062 15.365 132.414 13.231 133.996 11.3043C135.578 9.37763 137.393 7.79892 139.447 6.57074H142.979C145.031 7.83218 146.865 9.42881 148.48 11.3555C150.095 13.2822 151.458 15.4059 152.568 17.7267C153.679 20.0474 154.529 22.5191 155.117 25.1469C155.705 27.7747 156 30.4178 156 33.0789H150.449C150.416 30.5534 150.163 28.1585 149.692 25.8889C149.22 23.6194 148.523 21.5212 147.597 19.5945C146.671 17.6678 145.528 15.9433 144.165 14.4259C142.803 12.9061 141.231 11.6191 139.447 10.5623H143.03C141.246 11.6549 139.666 12.9675 138.286 14.5027C136.906 16.0379 135.752 17.7702 134.829 19.6969C133.903 21.6236 133.206 23.714 132.735 25.9657C132.263 28.2173 132.028 30.5893 132.028 33.0789H126.477Z" fill="#353B39"/><path d="M95.8856 11.3811H101.286V33.0789H95.8856V11.3811Z" fill="#353B39"/><path d="M95.8856 .481037H101.286V6.57074H95.8856V.481037Z" fill="#353B39"/><path d="M111.48 18.7809C111.48 21.8846 112.187 24.2565 113.6 25.894C115.013 27.5316 116.587 28.2839 119.691 28.2839C120.229 28.2839 122.482 28.2685 122.482 28.2685V33.0789C122.482 33.1531 117.688 33.0789 116.981 33.0789C114.977 33.0789 111.672 32.2319 109.436 29.6553C107.198 27.0787 106.08 23.4889 106.08 18.8832V0H111.48V18.7809ZM109.159 6.0897H122.381V10.9001H109.159V6.0897Z" fill="#353B39"/></g>
+    </svg>
+    <div class="qstep" id="sc">Diagnóstico</div>
+  </div>
+  <div class="qprog-wrap"><div class="qprog-fill" id="pb" style="width:0%"></div></div>
+  <div class="qcard">
+
+    <!-- 0: WELCOME -->
+    <div class="screen on grad-bg" id="s0" style="border-radius:16px;padding:2.5rem 2rem;margin-bottom:1rem">
+      <div class="hero-pill"><div class="hero-dot"></div>Diagnóstico personalizado</div>
+      <h1 class="hero-title">Seu protocolo,<br><em>do jeito certo.</em></h1>
+      <p class="hero-desc">10 perguntas rápidas para montar um protocolo de peptídeos feito para o seu perfil, objetivo e estilo de vida.</p>
+      <div class="hero-stats">
+        <div><div class="hs-val">10</div><div class="hs-lbl">Perguntas</div></div>
+        <div><div class="hs-val">~4min</div><div class="hs-lbl">Duração</div></div>
+        <div><div class="hs-val">100%</div><div class="hs-lbl">Personalizado</div></div>
+      </div>
+      <div class="hero-pills">
+        <div class="hpill"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="2" y="4" width="10" height="8" rx="1.5" stroke="#8A9896" stroke-width="1.2"/><path d="M5 4V3a2 2 0 014 0v1" stroke="#8A9896" stroke-width="1.2"/></svg>Dados seguros e privados</div>
+        <div class="hpill"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" stroke="#8A9896" stroke-width="1.2"/><path d="M7 4v3.5L9 9" stroke="#8A9896" stroke-width="1.2" stroke-linecap="round"/></svg>Resultado imediato</div>
+      </div>
+      <div class="btn-row"><button class="btn-p" onclick="nx()">Iniciar diagnóstico →</button></div>
+    </div>
+
+    <!-- 1: NOME -->
+    <div class="screen" id="s1">
+      <div class="q-num">Pergunta 1 de 10</div><h2 class="q-title">Como você se chama?</h2><p class="q-sub">Vamos personalizar toda a experiência com o seu nome.</p>
+      <input class="t-in" id="ni" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" oninput="A.nome=this.value.trim();document.getElementById('b1').disabled=!this.value.trim()">
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b1" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 2: SEXO -->
+    <div class="screen" id="s2">
+      <div class="q-num">Pergunta 2 de 10</div><h2 class="q-title">Qual é o seu sexo biológico?</h2><p class="q-sub">Influencia na dosagem e nos compostos indicados para o seu protocolo.</p>
+      <div class="opts c1" id="q2">
+        <div class="opt" data-q="2" data-val="masculino" onclick="so(this)"><div class="o-icon">♂</div><div class="o-body"><div class="o-title">Masculino</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="2" data-val="feminino" onclick="so(this)"><div class="o-icon">♀</div><div class="o-body"><div class="o-title">Feminino</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="2" data-val="ni" onclick="so(this)"><div class="o-icon">○</div><div class="o-body"><div class="o-title">Prefiro não informar</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b2" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 3: OBJETIVO -->
+    <div class="screen" id="s3">
+      <div class="q-num">Pergunta 3 de 10</div><h2 class="q-title">Qual é o seu principal objetivo?</h2><p class="q-sub">Escolha o que mais representa o que você quer alcançar agora.</p>
+      <div class="opts c2" id="q3">
+        <div class="opt" data-q="3" data-val="gordura" onclick="so(this)"><div class="o-icon">🔥</div><div class="o-body"><div class="o-title">Perda de gordura</div><div class="o-desc">Reduzir gordura com manutenção muscular</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="3" data-val="massa" onclick="so(this)"><div class="o-icon">💪</div><div class="o-body"><div class="o-title">Ganho de massa</div><div class="o-desc">Aumentar massa muscular e força</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="3" data-val="recuperacao" onclick="so(this)"><div class="o-icon">🌙</div><div class="o-body"><div class="o-title">Recuperação e sono</div><div class="o-desc">Melhorar descanso e regeneração</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="3" data-val="bem-estar" onclick="so(this)"><div class="o-icon">✨</div><div class="o-body"><div class="o-title">Bem-estar e longevidade</div><div class="o-desc">Energia, vitalidade e saúde duradoura</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b3" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 4: EXPERIÊNCIA -->
+    <div class="screen" id="s4">
+      <div class="q-num">Pergunta 4 de 10</div><h2 class="q-title">Qual é a sua experiência com peptídeos?</h2><p class="q-sub">Isso calibra a complexidade e os compostos do seu protocolo.</p>
+      <div class="opts c1" id="q4">
+        <div class="opt" data-q="4" data-val="iniciante" onclick="so(this)"><div class="o-icon">🌱</div><div class="o-body"><div class="o-title">Nunca usei peptídeos</div><div class="o-desc">Estou começando agora, quero entender do zero</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="4" data-val="intermediario" onclick="so(this)"><div class="o-icon">🧪</div><div class="o-body"><div class="o-title">Já usei antes</div><div class="o-desc">Tenho experiência, mas sem protocolo estruturado</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="4" data-val="avancado" onclick="so(this)"><div class="o-icon">⚗️</div><div class="o-body"><div class="o-title">Uso regular</div><div class="o-desc">Já uso peptídeos e quero otimizar meu protocolo</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b4" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 5: FÍSICO -->
+    <div class="screen" id="s5">
+      <div class="q-num">Pergunta 5 de 10</div><h2 class="q-title">Qual é o seu perfil físico?</h2><p class="q-sub">Peso e altura são usados para calcular as dosagens com precisão.</p>
+      <div class="sl-g"><div class="sl-row"><span class="sl-lbl">Peso</span><span class="sl-val" id="pV">75 <span class="sl-unit">kg</span></span></div><input type="range" id="peso" min="45" max="150" value="75" step="1" oninput="document.getElementById('pV').innerHTML=this.value+' <span class=\'sl-unit\'>kg</span>';ci()"></div>
+      <div class="sl-g"><div class="sl-row"><span class="sl-lbl">Altura</span><span class="sl-val" id="aV">170 <span class="sl-unit">cm</span></span></div><input type="range" id="altura" min="150" max="210" value="170" step="1" oninput="document.getElementById('aV').innerHTML=this.value+' <span class=\'sl-unit\'>cm</span>';ci()"></div>
+      <div class="imc-row">IMC: <span class="imc-n" id="imcV">26.0</span> <span class="imc-s" id="imcL">— Normal</span></div>
+      <div class="btn-row" style="margin-top:1.75rem"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" onclick="A.peso=document.getElementById('peso').value;A.altura=document.getElementById('altura').value;nx()">Continuar →</button></div>
+    </div>
+
+    <!-- 6: ATIVIDADE -->
+    <div class="screen" id="s6">
+      <div class="q-num">Pergunta 6 de 10</div><h2 class="q-title">Como é a sua rotina de atividade física?</h2><p class="q-sub">Frequência de treino influencia o timing e os compostos recomendados.</p>
+      <div class="opts c1" id="q6">
+        <div class="opt" data-q="6" data-val="sedentario" onclick="so(this)"><div class="o-icon">🪑</div><div class="o-body"><div class="o-title">Sedentário</div><div class="o-desc">Pouca ou nenhuma atividade física regular</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="6" data-val="moderado" onclick="so(this)"><div class="o-icon">🚶</div><div class="o-body"><div class="o-title">Moderado</div><div class="o-desc">1–3 vezes por semana</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="6" data-val="ativo" onclick="so(this)"><div class="o-icon">🏃</div><div class="o-body"><div class="o-title">Ativo</div><div class="o-desc">4–5 vezes por semana, treinos regulares</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="6" data-val="atleta" onclick="so(this)"><div class="o-icon">🏋️</div><div class="o-body"><div class="o-title">Atleta</div><div class="o-desc">Treino diário ou duplo, alto desempenho</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b6" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 7: SONO -->
+    <div class="screen" id="s7">
+      <div class="q-num">Pergunta 7 de 10</div><h2 class="q-title">Como você avalia a qualidade do seu sono?</h2><p class="q-sub">O sono afeta diretamente a produção hormonal. Seja honesto.</p>
+      <div class="scale" id="q7">
+        <div class="sc-b" data-q="7" data-val="1" onclick="ss(this,'q7')"><span>1</span><span class="sc-lbl">Péssimo</span></div>
+        <div class="sc-b" data-q="7" data-val="2" onclick="ss(this,'q7')"><span>2</span><span class="sc-lbl">Ruim</span></div>
+        <div class="sc-b" data-q="7" data-val="3" onclick="ss(this,'q7')"><span>3</span><span class="sc-lbl">Regular</span></div>
+        <div class="sc-b" data-q="7" data-val="4" onclick="ss(this,'q7')"><span>4</span><span class="sc-lbl">Bom</span></div>
+        <div class="sc-b" data-q="7" data-val="5" onclick="ss(this,'q7')"><span>5</span><span class="sc-lbl">Ótimo</span></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b7" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 8: ESTRESSE -->
+    <div class="screen" id="s8">
+      <div class="q-num">Pergunta 8 de 10</div><h2 class="q-title">Qual é o seu nível de estresse no dia a dia?</h2><p class="q-sub">Estresse crônico eleva cortisol e muda a resposta do organismo aos peptídeos.</p>
+      <div class="opts c1" id="q8">
+        <div class="opt" data-q="8" data-val="baixo" onclick="so(this)"><div class="o-icon">😌</div><div class="o-body"><div class="o-title">Baixo</div><div class="o-desc">Vida tranquila, consigo descansar bem</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="8" data-val="moderado" onclick="so(this)"><div class="o-icon">😐</div><div class="o-body"><div class="o-title">Moderado</div><div class="o-desc">Estresse presente mas controlável</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="8" data-val="alto" onclick="so(this)"><div class="o-icon">😤</div><div class="o-body"><div class="o-title">Alto</div><div class="o-desc">Muita pressão, dificuldade de desligar</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b8" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 9: DURAÇÃO -->
+    <div class="screen" id="s9">
+      <div class="q-num">Pergunta 9 de 10</div><h2 class="q-title">Por quanto tempo quer seguir o protocolo?</h2><p class="q-sub">A duração estrutura as fases de uso e descanso corretamente.</p>
+      <div class="opts c2" id="q9">
+        <div class="opt" data-q="9" data-val="4sem" onclick="so(this)"><div class="o-icon">📅</div><div class="o-body"><div class="o-title">4 semanas</div><div class="o-desc">Ciclo introdutório, ideal para iniciantes</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="9" data-val="8sem" onclick="so(this)"><div class="o-icon">📆</div><div class="o-body"><div class="o-title">8 semanas</div><div class="o-desc">Protocolo padrão, resultados consistentes</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="9" data-val="12sem" onclick="so(this)"><div class="o-icon">🗓️</div><div class="o-body"><div class="o-title">12 semanas</div><div class="o-desc">Ciclo completo, máxima transformação</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+        <div class="opt" data-q="9" data-val="continuo" onclick="so(this)"><div class="o-icon">♾️</div><div class="o-body"><div class="o-title">Uso contínuo</div><div class="o-desc">Manutenção de longo prazo com ciclos</div></div><div class="o-radio"><div class="o-dot"></div></div></div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" id="b9" onclick="nx()" disabled>Continuar →</button></div>
+    </div>
+
+    <!-- 10: SAÚDE -->
+    <div class="screen" id="s10">
+      <div class="q-num">Pergunta 10 de 10</div><h2 class="q-title">Alguma consideração de saúde?</h2><p class="q-sub">Selecione tudo que se aplica. Garante que o protocolo seja adequado e seguro para você.</p>
+      <div class="tags" id="q10">
+        <div class="tag" data-val="diabetes" onclick="tt(this)">Diabetes</div>
+        <div class="tag" data-val="hipertensao" onclick="tt(this)">Hipertensão</div>
+        <div class="tag" data-val="tireoide" onclick="tt(this)">Tireoide</div>
+        <div class="tag" data-val="cancro" onclick="tt(this)">Histórico de câncer</div>
+        <div class="tag" data-val="gravidez" onclick="tt(this)">Grávida ou amamentando</div>
+        <div class="tag" data-val="rim" onclick="tt(this)">Problemas renais</div>
+        <div class="tag" data-val="medicacao" onclick="tt(this)">Medicação contínua</div>
+        <div class="tag" data-val="nenhuma" onclick="tt(this,true)">Nenhuma das anteriores</div>
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="pv()">← Voltar</button><button class="btn-p" onclick="gr()">Ver meu protocolo →</button></div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="screen" id="sresult">
+      <div class="r-head">
+        <div class="r-badge"><svg width="7" height="7" viewBox="0 0 7 7"><circle cx="3.5" cy="3.5" r="3" fill="currentColor"/></svg>Protocolo gerado</div>
+        <div class="r-nm" id="rnm"></div>
+        <h2 class="r-title">Seu protocolo<br><em id="rfc">está pronto.</em></h2>
+        <p class="r-desc" id="rdesc"></p>
+      </div>
+      <div class="r-grid">
+        <div class="r-card"><div class="r-lbl">Objetivo</div><div class="r-val" id="rv1">—</div></div>
+        <div class="r-card"><div class="r-lbl">Duração</div><div class="r-val" id="rv2">—</div></div>
+        <div class="r-card"><div class="r-lbl">Perfil</div><div class="r-val" id="rv3">—</div></div>
+        <div class="r-card"><div class="r-lbl">Nível</div><div class="r-val" id="rv4">—</div></div>
+      </div>
+      <div class="r-card" style="margin-bottom:0;background:#F0FDF8;border-color:rgba(94,201,145,.25)">
+        <div class="r-lbl" style="color:var(--green-mid);margin-bottom:.75rem">Protocolo recomendado</div>
+        <ul class="p-list" id="pl"></ul>
+      </div>
+      <div class="gate">
+        <div class="gate-box">
+          <div class="gate-ico"><svg width="22" height="22" fill="none" viewBox="0 0 22 22"><path d="M11 2L13.9 8.26L21 9.27L16 14.14L17.18 21.02L11 17.77L4.82 21.02L6 14.14L1 9.27L8.1 8.26L11 2Z" stroke="#3A8F68" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+          <h3 class="gate-title">Quer receber seu protocolo completo<br>e ter <em>acompanhamento contínuo?</em></h3>
+          <p class="gate-sub">Dosagens exatas, calendário de uso, check-ins semanais e ajustes automáticos — tudo isso nos planos Nuvita. Ou desbloqueie o básico agora mesmo de graça.</p>
+          <button class="btn-gate" onclick="gt('pricing')">Ver planos e continuar →</button>
+        </div>
+        <div class="disclaimer" style="margin-top:1.25rem">⚠️ Este protocolo é apenas informativo e educacional. Não substitui orientação médica profissional.</div>
+        <div class="btn-row" style="margin-top:1rem"><button class="btn-g" onclick="rst()">↺ Refazer diagnóstico</button></div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="screen" id="spricing">
+      <!-- gradient section header -->
+      <div class="grad-bg" style="border-radius:16px;padding:2rem;margin-bottom:1.5rem;text-align:center">
+        <div class="p-eyebrow">Simples, justo, sem surpresa</div>
+        <h2 class="p-title">Escolha como<br><em>você quer evoluir.</em></h2>
+        <p class="p-sub">Do protocolo básico ao acompanhamento médico completo.</p>
+      </div>
+
+      <div class="plans-grid">
+
+        <!-- FREE -->
+        <div class="plan">
+          <div class="plan-tag">Grátis</div>
+          <div class="plan-name">Nuvita Free</div>
+          <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">0</span></div>
+          <p class="plan-desc">Para quem quer ver o protocolo básico antes de se comprometer.</p>
+          <ul class="plan-feats">
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Diagnóstico completo</strong></span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Protocolo desbloqueado</strong> — o que tomar</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Confirmação por <strong>e-mail</strong></span></li>
+          </ul>
+          <div style="margin-bottom:.75rem">
+            <input class="e-in" id="free-email" type="email" placeholder="Seu e-mail para desbloquear" autocomplete="email" style="margin-bottom:.5rem">
+          </div>
+          <button class="plan-btn" onclick="handleFree()">Desbloquear grátis</button>
+        </div>
+
+        <!-- ESSENCIAL -->
+        <div class="plan">
+          <div class="plan-tag">Mais escolhido</div>
+          <div class="plan-name">Nuvita Essencial</div>
+          <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">29</span><span class="plan-per">/mês</span></div>
+          <p class="plan-desc">Protocolo completo com dosagens, acompanhamento e calculadora. Sem médico, com total autonomia.</p>
+          <ul class="plan-feats">
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Tudo do Free</strong> incluso</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Dosagens exatas</strong> por peso e objetivo</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Check-ins semanais</strong> e progresso</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Calculadora</strong> de dosagem</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#3A8F68" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Biblioteca</strong> educativa completa</span></li>
+          </ul>
+          <div style="margin-bottom:.75rem">
+            <input class="e-in" id="ess-email" type="email" placeholder="Seu melhor e-mail" autocomplete="email" style="margin-bottom:.5rem">
+          </div>
+          <button class="plan-btn" onclick="handleEssencial()">Começar por R$29/mês</button>
+          <p class="p-note">Cancele quando quiser.</p>
+        </div>
+
+        <!-- PRO -->
+        <div class="plan featured">
+          <div class="plan-tag">Completo</div>
+          <div class="plan-name">Nuvita Pro</div>
+          <div class="plan-price"><span class="plan-cur">R$</span><span class="plan-amt">59</span><span class="plan-per">/mês</span></div>
+          <p class="plan-desc">Tudo do Essencial com suporte médico especializado em peptídeos — consultas incluídas.</p>
+          <ul class="plan-feats">
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Tudo do Essencial</strong> incluso</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Médico parceiro</strong> no seu protocolo</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Consultas periódicas</strong> inclusas</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Ajustes supervisionados</strong> pelo médico</span></li>
+            <li class="pf"><div class="pf-ck"><svg width="8" height="8" fill="none" viewBox="0 0 8 8"><path d="M1.5 4l2 2L6.5 2" stroke="#5EC991" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span><strong>Prescrição médica</strong> quando necessário</span></li>
+          </ul>
+          <div style="margin-bottom:.75rem">
+            <input class="e-in" id="pro-email" type="email" placeholder="Seu melhor e-mail" autocomplete="email" style="margin-bottom:.5rem;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:white">
+          </div>
+          <button class="plan-btn" onclick="handlePro()">Começar com suporte médico →</button>
+          <p class="p-note" style="color:rgba(255,255,255,.3)">Cancele quando quiser.</p>
+        </div>
+
+      </div>
+      <div class="btn-row"><button class="btn-g" onclick="gt('result')">← Voltar ao protocolo</button></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="dw" id="dw">
+
+  <nav class="d-nav">
+    <svg width="80" height="18" viewBox="0 0 156 34" fill="none">
+      <g><path d="M19.6318 6.74985C21.3477 7.44837 22.8113 8.4565 24.0225 9.76911C25.2337 11.0817 26.1598 12.6784 26.7982 14.5539C27.4366 16.4294 27.7571 18.5275 27.7571 20.8483V33.0789H22.3571V20.5924C22.3571 19.0239 22.1552 17.6422 21.7515 16.4473C21.3477 15.2524 20.785 14.2392 20.0608 13.4025C19.3366 12.5658 18.4459 11.9363 17.386 11.509C16.3262 11.0817 15.1226 10.8694 13.7776 10.8694C12.4327 10.8694 11.229 11.0817 10.1692 11.509C9.10938 11.9363 8.21863 12.5658 7.49442 13.4025C6.77021 14.2392 6.21507 15.2524 5.82899 16.4473C5.44292 17.6422 5.24862 19.0239 5.24862 20.5924V33.0789H0V20.8483C0 18.4943 .320468 16.3885 .958882 14.5283C1.5973 12.6681 2.5158 11.0817 3.70936 9.76911C4.90291 8.4565 6.35133 7.44837 8.04956 6.74985C9.74779 6.05132 11.6756 5.70078 13.8281 5.70078C15.9805 5.70078 17.916 6.05132 19.6318 6.74985Z" fill="#353B39"/><path d="M36.8413 6.57074V19.2107C36.8413 20.7459 37.0356 22.1097 37.4217 23.3046C37.8078 24.4995 38.3629 25.5051 39.0871 26.3239C39.8113 27.1427 40.6945 27.7644 41.7366 28.1918C42.7788 28.6191 43.9572 28.8314 45.2694 28.8314C46.5815 28.8314 47.7675 28.6191 48.8273 28.1918C49.8871 27.7644 50.7779 27.135 51.5021 26.2983C52.2263 25.4616 52.7815 24.4561 53.1675 23.279C53.5536 22.102 53.7479 20.7459 53.7479 19.2107V6.57074H58.9965V18.9548C58.9965 21.2756 58.6761 23.3635 58.0376 25.2237C57.3992 27.0838 56.4807 28.6626 55.2872 29.9573C54.0936 31.2545 52.6452 32.2524 50.947 32.9509C49.2487 33.6495 47.3385 34 45.2189 34C43.0993 34 41.1891 33.6495 39.4908 32.9509C37.7926 32.2524 36.3442 31.2545 35.1506 29.9573C33.9571 28.6626 33.0386 27.0838 32.4002 25.2237C31.7618 23.3635 31.4413 21.2756 31.4413 18.9548V6.57074H36.8413Z" fill="#353B39"/><path d="M68.1816 6.57074C68.1816 9.06035 68.4162 11.4323 68.8881 13.6839C69.36 15.9356 70.0564 18.026 70.9825 19.9527C71.9086 21.882 73.0592 23.6117 74.4395 25.1469C75.8173 26.6821 77.3994 27.9947 79.1835 29.0873H75.6003C77.3843 28.0306 78.9564 26.741 80.319 25.2237C81.6816 23.7064 82.8247 21.9818 83.7508 20.0551C84.6768 18.1284 85.3733 16.0303 85.8452 13.7607C86.317 11.4911 86.5694 9.09618 86.6022 6.57074H92.1536C92.1536 9.23179 91.8584 11.8749 91.2704 14.5027C90.6825 17.1305 89.8321 19.6022 88.7218 21.9229C87.6115 24.2437 86.2489 26.3674 84.6339 28.2941C83.019 30.2234 81.1845 31.8174 79.133 33.0789H75.6003C73.5488 31.8507 71.7319 30.272 70.1498 28.3453C68.5676 26.4186 67.2151 24.2846 66.0871 21.9485C64.9592 19.6124 64.1013 17.1305 63.5133 14.5027C62.9254 11.8749 62.6301 9.23179 62.6301 6.57074H68.1816Z" fill="#353B39"/><path d="M126.477 33.0789C126.477 30.4178 126.772 27.7747 127.36 25.1469C127.948 22.5191 128.806 20.0372 129.934 17.7011C131.062 15.365 132.414 13.231 133.996 11.3043C135.578 9.37763 137.393 7.79892 139.447 6.57074H142.979C145.031 7.83218 146.865 9.42881 148.48 11.3555C150.095 13.2822 151.458 15.4059 152.568 17.7267C153.679 20.0474 154.529 22.5191 155.117 25.1469C155.705 27.7747 156 30.4178 156 33.0789H150.449C150.416 30.5534 150.163 28.1585 149.692 25.8889C149.22 23.6194 148.523 21.5212 147.597 19.5945C146.671 17.6678 145.528 15.9433 144.165 14.4259C142.803 12.9061 141.231 11.6191 139.447 10.5623H143.03C141.246 11.6549 139.666 12.9675 138.286 14.5027C136.906 16.0379 135.752 17.7702 134.829 19.6969C133.903 21.6236 133.206 23.714 132.735 25.9657C132.263 28.2173 132.028 30.5893 132.028 33.0789H126.477Z" fill="#353B39"/><path d="M95.8856 11.3811H101.286V33.0789H95.8856V11.3811Z" fill="#353B39"/><path d="M95.8856 .481037H101.286V6.57074H95.8856V.481037Z" fill="#353B39"/><path d="M111.48 18.7809C111.48 21.8846 112.187 24.2565 113.6 25.894C115.013 27.5316 116.587 28.2839 119.691 28.2839C120.229 28.2839 122.482 28.2685 122.482 28.2685V33.0789C122.482 33.1531 117.688 33.0789 116.981 33.0789C114.977 33.0789 111.672 32.2319 109.436 29.6553C107.198 27.0787 106.08 23.4889 106.08 18.8832V0H111.48V18.7809ZM109.159 6.0897H122.381V10.9001H109.159V6.0897Z" fill="#353B39"/></g>
+    </svg>
+    <div class="d-nav-right">
+      <div class="d-plan-tag" id="d-plantag">Free</div>
+      <div class="d-nav-name" id="dnn">—</div>
+      <div class="d-avatar" id="dav">—</div>
+    </div>
+  </nav>
+
+  <div class="d-body">
+
+    <!-- BANNER -->
+    <div class="d-banner">
+      <div class="db-left">
+        <div class="db-greeting">Bem-vindo(a) de volta</div>
+        <div class="db-title">Olá, <em id="dbnm">você</em>.<br>Protocolo ativo.</div>
+        <div class="db-sub" id="dbsub">Semana 1 — Início do ciclo</div>
+      </div>
+      <div class="db-right">
+        <div class="db-stat"><div class="db-sv" id="dbadesao">—</div><div class="db-sl">Adesão</div></div>
+        <div class="db-stat"><div class="db-sv">1</div><div class="db-sl">Semana</div></div>
+        <div class="db-stat"><div class="db-sv" id="dbsem">8</div><div class="db-sl">Ciclo</div></div>
+      </div>
+    </div>
+
+    <!-- MAIN COLUMN -->
+    <div>
+      <div class="d-card">
+        <div class="d-card-h"><div class="d-card-t">Tarefas de hoje</div><div class="d-badge"><div class="d-bdot"></div>Dia 1</div></div>
+        <div class="t-list" id="tkl"></div>
+      </div>
+
+      <div class="d-card">
+        <div class="d-card-h"><div class="d-card-t">Adesão semanal</div><div style="font-size:12px;font-weight:700;color:var(--green-mid);letter-spacing:-0.02em" id="adpct">0 / 7 dias</div></div>
+        <div class="w-row" id="wr">
+          <div class="w-b"><div class="w-n">Seg</div><div class="w-c w-today" onclick="td(this)">•</div></div>
+          <div class="w-b"><div class="w-n">Ter</div><div class="w-c" onclick="td(this)"></div></div>
+          <div class="w-b"><div class="w-n">Qua</div><div class="w-c" onclick="td(this)"></div></div>
+          <div class="w-b"><div class="w-n">Qui</div><div class="w-c" onclick="td(this)"></div></div>
+          <div class="w-b"><div class="w-n">Sex</div><div class="w-c" onclick="td(this)"></div></div>
+          <div class="w-b"><div class="w-n">Sáb</div><div class="w-c" onclick="td(this)"></div></div>
+          <div class="w-b"><div class="w-n">Dom</div><div class="w-c" onclick="td(this)"></div></div>
+        </div>
+      </div>
+
+      <div class="d-card">
+        <div class="d-card-h"><div class="d-card-t">Protocolo ativo</div><div class="d-badge" id="dnvl" style="background:var(--green-pale);color:var(--green-mid)">Iniciante</div></div>
+        <div id="dpl"></div>
+      </div>
+
+      <div class="d-card">
+        <div class="d-card-h"><div class="d-card-t">Progresso do ciclo</div><div style="font-size:12px;font-weight:500;color:var(--ts);letter-spacing:-0.02em">Semana 1</div></div>
+        <div class="prog-i"><div class="prog-h"><span class="prog-nm">Adesão ao protocolo</span><span class="prog-pct" id="prga">0%</span></div><div class="prog-tr"><div class="prog-f" id="pfa" style="width:0%"></div></div></div>
+        <div class="prog-i"><div class="prog-h"><span class="prog-nm">Duração do ciclo</span><span class="prog-pct">12%</span></div><div class="prog-tr"><div class="prog-f" style="width:12%"></div></div></div>
+        <div class="prog-i"><div class="prog-h"><span class="prog-nm">Check-ins realizados</span><span class="prog-pct">0%</span></div><div class="prog-tr"><div class="prog-f" style="width:0%"></div></div></div>
+      </div>
+
+      <div class="d-card">
+        <div class="d-card-h"><div class="d-card-t">Conteúdo educativo</div></div>
+        <div>
+          <div class="tip-i"><div class="tip-ico" style="background:var(--green-pale)">📖</div><div><div class="tip-t">Como reconstituir peptídeos</div><div class="tip-s">Guia passo a passo para preparar sua primeira ampola com segurança.</div></div></div>
+          <div class="tip-i"><div class="tip-ico" style="background:#EAF2FB">💉</div><div><div class="tip-t">Técnica de aplicação subcutânea</div><div class="tip-s">Onde e como aplicar corretamente, sem erros comuns.</div></div></div>
+          <div class="tip-i"><div class="tip-ico" style="background:#FFF5E6">⚡</div><div><div class="tip-t">Timing ideal para seu objetivo</div><div class="tip-s">O horário da aplicação impacta diretamente nos resultados.</div></div></div>
+          <div class="tip-i"><div class="tip-ico" style="background:#F0EAFF">🧬</div><div><div class="tip-t">Entendendo GH e secretagogos</div><div class="tip-s">Como Ipamorelin e CJC-1295 estimulam a liberação natural do GH.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="d-metrics">
+        <div class="d-met"><div class="dm-lbl">Objetivo</div><div class="dm-val" id="dmobj" style="font-size:1rem;color:var(--dark)">—</div></div>
+        <div class="d-met"><div class="dm-lbl">Ciclo</div><div class="dm-val" id="dmdur">—</div><div class="dm-sub">em andamento</div></div>
+        <div class="d-met"><div class="dm-lbl">Peso</div><div class="dm-val" id="dmpeso">—</div></div>
+        <div class="d-met"><div class="dm-lbl">IMC</div><div class="dm-val" id="dmimc">—</div><div class="dm-sub" id="dmimcs">—</div></div>
+      </div>
+
+      <div class="c-in">
+        <div class="c-title">Check-in semanal</div>
+        <div class="c-q">Como você está se sentindo hoje?</div>
+        <div class="c-scale" id="cks">
+          <div class="c-b" onclick="sc(this)">1</div><div class="c-b" onclick="sc(this)">2</div><div class="c-b" onclick="sc(this)">3</div><div class="c-b" onclick="sc(this)">4</div><div class="c-b" onclick="sc(this)">5</div>
+        </div>
+        <button class="btn-ci" onclick="sck(this)">Registrar check-in</button>
+      </div>
+
+      <div class="d-card">
+        <div class="d-card-h"><div class="d-card-t">Próximas ações</div></div>
+        <div>
+          <div class="nx-i"><div class="nx-dot" style="background:var(--green)"></div><div><div class="nx-t">Registrar dia 1</div><div class="nx-s">Marque a aplicação de hoje no tracker semanal.</div></div></div>
+          <div class="nx-i"><div class="nx-dot" style="background:var(--am)"></div><div><div class="nx-t">Check-in em 7 dias</div><div class="nx-s">Avaliação de como seu corpo está respondendo.</div></div></div>
+          <div class="nx-i"><div class="nx-dot" style="background:var(--border2)"></div><div><div class="nx-t">Ajuste de dosagem</div><div class="nx-s">Revisão prevista na semana 3 do protocolo.</div></div></div>
+        </div>
+      </div>
+
+      <!-- PRO upsell (shown for non-pro) -->
+      <div class="d-card" id="d-upsell" style="background:linear-gradient(135deg,#F0FDF8 0%,#CAF6EC 100%);border-color:rgba(94,201,145,.3)">
+        <div class="d-card-t" style="color:var(--green-mid);margin-bottom:.75rem">Upgrade disponível</div>
+        <div style="font-size:14px;font-weight:700;color:var(--dark);letter-spacing:-0.03em;margin-bottom:.375rem">Adicionar suporte médico</div>
+        <div style="font-size:12px;color:var(--tm);line-height:1.55;margin-bottom:1rem;letter-spacing:-0.01em">Tenha um médico especialista revisando e ajustando seu protocolo com consultas periódicas.</div>
+        <button style="width:100%;padding:10px;background:var(--dark);color:white;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border-radius:8px;border:none;cursor:pointer;letter-spacing:-0.02em" onclick="gt('pricing')">Ver plano Pro →</button>
+      </div>
+
+      <div class="disclaimer" style="margin-top:0">⚠️ Protocolo informativo e educacional. Não substitui orientação médica.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const T=10;let cur=0;const A={};
+const PR={gordura:[{e:'🔥',n:'AOD-9604',d:'Fragmento do GH, lipólise seletiva sem efeitos anabólicos',v:'300mcg',f:'Manhã em jejum'},{e:'🌿',n:'CJC-1295 / Ipamorelin',d:'Estimulação de GH, composição corporal e sono',v:'100/200mcg',f:'Antes de dormir'},{e:'💊',n:'Semaglutide (GLP-1)',d:'Regulação do apetite e controle glicêmico',v:'0.25mg',f:'1x por semana'}],massa:[{e:'💪',n:'Ipamorelin',d:'Secretagogo do GH, estímulo anabólico limpo',v:'200–300mcg',f:'3x ao dia'},{e:'🔄',n:'BPC-157',d:'Recuperação muscular e tendinosa acelerada',v:'250mcg',f:'2x ao dia'},{e:'⚡',n:'IGF-1 LR3',d:'Fator de crescimento, síntese proteica aumentada',v:'50–100mcg',f:'Pós-treino'}],recuperacao:[{e:'🔄',n:'BPC-157',d:'Regeneração sistêmica, tecidos e articulações',v:'250mcg',f:'2x ao dia'},{e:'🌟',n:'Epithalon',d:'Antienvelhecimento, melhora do sono e circadiano',v:'10mg',f:'5 dias / semestre'},{e:'🌙',n:'DSIP',d:'Peptídeo indutor do sono, melhora fases profundas',v:'100–300mcg',f:'Antes de dormir'}],'bem-estar':[{e:'🌟',n:'Epithalon',d:'Longevidade, regulação do telômero e bem-estar',v:'10mg',f:'5 dias / semestre'},{e:'🧠',n:'Selank',d:'Ansiolítico natural, clareza mental e foco',v:'250mcg',f:'2x ao dia'},{e:'🛡️',n:'Thymosin Alpha-1',d:'Suporte imunológico e vitalidade celular',v:'1.5mg',f:'2x por semana'}]};
+const OM={gordura:'Perda de gordura',massa:'Ganho de massa',recuperacao:'Recuperação e sono','bem-estar':'Bem-estar'};
+const DM={'4sem':'4 semanas','8sem':'8 semanas','12sem':'12 semanas',continuo:'Contínuo'};
+const SM={'4sem':'4sem','8sem':'8sem','12sem':'12sem',continuo:'∞'};
+const NM={iniciante:'Iniciante',intermediario:'Intermediário',avancado:'Avançado'};
+const EM={sedentario:'Sedentário',moderado:'Ativo mod.',ativo:'Ativo',atleta:'Atleta'};
+const FM={gordura:'para perda de gordura.',massa:'para ganho de massa.',recuperacao:'para recuperação.','bem-estar':'para bem-estar.'};
+const DsM={gordura:'Protocolo focado em lipólise, controle de apetite e preservação de massa magra.',massa:'Protocolo anabólico com foco em síntese proteica, recuperação e estímulo de GH.',recuperacao:'Protocolo regenerativo com foco em sono, tecidos e ritmo circadiano.','bem-estar':'Protocolo de longevidade com foco em sistema imune, clareza mental e vitalidade.'};
+
+function sid(s){if(s==='result')return'sresult';if(s==='pricing')return'spricing';return's'+s}
+function up(){let p=cur==='result'||cur==='pricing'?100:Math.round((cur/T)*100);document.getElementById('pb').style.width=p+'%';const c=document.getElementById('sc');if(cur===0)c.textContent='Diagnóstico';else if(cur==='result')c.textContent='Protocolo pronto';else if(cur==='pricing')c.textContent='Planos';else c.textContent=cur+' de '+T}
+function gt(s){if(s==='dashboard'){ld();return}const l=document.getElementById(sid(cur));l.classList.add('bye');setTimeout(()=>{l.classList.remove('bye','on');cur=s;document.getElementById(sid(s)).classList.add('on');up();window.scrollTo({top:0,behavior:'smooth'})},220)}
+function nx(){if(cur===0){gt(1);return}gt(cur+1)}
+function pv(){if(cur<=1){gt(0);return}gt(cur-1)}
+function so(el){const q=el.dataset.q;document.querySelectorAll('[data-q="'+q+'"]').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');A['q'+q]=el.dataset.val;const b=document.getElementById('b'+q);if(b)b.disabled=false}
+function ss(el,g){document.querySelectorAll('#'+g+' .sc-b').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');A['q'+el.dataset.q]=el.dataset.val;const b=document.getElementById('b'+el.dataset.q);if(b)b.disabled=false}
+function tt(el,ex){if(ex){document.querySelectorAll('#q10 .tag').forEach(t=>t.classList.remove('sel'));el.classList.add('sel');}else{document.querySelector('#q10 [data-val="nenhuma"]')?.classList.remove('sel');el.classList.toggle('sel');}A.q10=Array.from(document.querySelectorAll('#q10 .tag.sel')).map(t=>t.dataset.val)}
+function ci(){const p=+document.getElementById('peso').value,a=+document.getElementById('altura').value/100,imc=(p/(a*a)).toFixed(1);document.getElementById('imcV').textContent=imc;document.getElementById('imcL').textContent=imc<18.5?'— Abaixo do peso':imc<25?'— Normal':imc<30?'— Sobrepeso':'— Obesidade'}
+function bpl(id,obj,lk,dash){const el=document.getElementById(id);el.innerHTML='';(PR[obj]||[]).forEach((item,i)=>{if(dash){const d=document.createElement('div');d.className='dp-i';d.innerHTML=`<div class="dp-ico">${item.e}</div><div class="dp-b"><div class="dp-nm">${item.n}</div><div class="dp-d">${item.d}</div></div><div class="dp-dose"><div class="dp-v">${item.v}</div><div class="dp-f">${item.f}</div></div>`;el.appendChild(d)}else{const li=document.createElement('li');li.className='p-item'+(i>=lk?' locked':'');li.innerHTML=`<div class="p-num">0${i+1}</div><div><div class="p-name">${item.n}</div><div class="p-det">${item.d}</div></div><div class="p-dose"><div class="p-dv">${item.v}</div><div class="p-df">${item.f}</div></div>`;el.appendChild(li)}})}
+function gr(){A.peso=document.getElementById('peso').value;A.altura=document.getElementById('altura').value;const obj=A.q3||'gordura',nivel=A.q4||'iniciante',estilo=A.q6||'moderado',dur=A.q9||'8sem';document.getElementById('rnm').textContent=A.nome?'Olá, '+A.nome+'.':'';document.getElementById('rfc').textContent=FM[obj]||'está pronto.';document.getElementById('rdesc').textContent=DsM[obj]||'';document.getElementById('rv1').textContent=OM[obj]||obj;document.getElementById('rv2').textContent=DM[dur]||dur;document.getElementById('rv4').textContent=NM[nivel]||nivel;document.getElementById('rv3').textContent=EM[estilo]+' · '+A.peso+'kg';bpl('pl',obj,1,false);gt('result')}
+
+// FREE plan: email + code verification
+function handleFree(){
+  const em=document.getElementById('free-email').value;
+  if(!em||!em.includes('@')){document.getElementById('free-email').style.borderColor='rgba(212,137,58,.5)';document.getElementById('free-email').focus();return}
+  A.email=em;A.plano='free';
+  document.getElementById('modal-email-show').textContent=em;
+  document.getElementById('verify-modal').classList.remove('hide');
+  document.getElementById('c1').focus();
+}
+function handleEssencial(){
+  const em=document.getElementById('ess-email').value;
+  if(!em||!em.includes('@')){document.getElementById('ess-email').style.borderColor='rgba(212,137,58,.5)';document.getElementById('ess-email').focus();return}
+  A.email=em;A.plano='essencial';gt('dashboard')
+}
+function handlePro(){
+  const em=document.getElementById('pro-email').value;
+  if(!em||!em.includes('@')){document.getElementById('pro-email').style.borderColor='rgba(212,137,58,.5)';document.getElementById('pro-email').focus();return}
+  A.email=em;A.plano='pro';gt('dashboard')
+}
+
+// CODE INPUTS
+function codeMove(el,next){el.classList.toggle('filled',el.value!=='');if(el.value&&next)document.getElementById(next)?.focus()}
+function codePrev(e,prev){if(e.key==='Backspace'&&!e.target.value)document.getElementById(prev)?.focus()}
+function verifyCode(){
+  const code=[...document.querySelectorAll('.code-input')].map(i=>i.value).join('');
+  if(code.length<6){document.querySelectorAll('.code-input').forEach(i=>i.style.borderColor='rgba(212,137,58,.5)');return}
+  document.getElementById('verify-modal').classList.add('hide');
+  gt('dashboard');
+}
+function closeModal(){document.getElementById('verify-modal').classList.add('hide')}
+function resendCode(){document.getElementById('modal-sub').innerHTML='Novo código enviado para <strong id="modal-email-show">'+A.email+'</strong>. Verifique sua caixa de entrada.';[...document.querySelectorAll('.code-input')].forEach(i=>{i.value='';i.classList.remove('filled');i.style.borderColor=''})}
+
+// DASHBOARD
+function ld(){
+  const obj=A.q3||'gordura',dur=A.q9||'8sem',nivel=A.q4||'iniciante',nome=A.nome||'você',plano=A.plano||'free';
+  document.getElementById('qw').classList.remove('on');
+  document.getElementById('dw').classList.add('on');
+  document.getElementById('dbnm').textContent=nome;
+  document.getElementById('dnn').textContent=nome;
+  document.getElementById('dav').textContent=nome.charAt(0).toUpperCase();
+  const ptags={free:'Free',essencial:'Essencial',pro:'Pro ✦'};
+  document.getElementById('d-plantag').textContent=ptags[plano]||'Free';
+  document.getElementById('dbsub').textContent='Semana 1 — '+DM[dur]+' de ciclo';
+  document.getElementById('dbsem').textContent=SM[dur];
+  document.getElementById('dmobj').textContent=OM[obj]||obj;
+  document.getElementById('dmdur').textContent=SM[dur];
+  const p=+(A.peso||75),a=+(A.altura||170)/100,imc=(p/(a*a)).toFixed(1);
+  document.getElementById('dmpeso').textContent=(A.peso||'—')+'kg';
+  document.getElementById('dmimc').textContent=imc;
+  document.getElementById('dmimcs').textContent=imc<25?'Normal':imc<30?'Sobrepeso':'Obesidade';
+  document.getElementById('dnvl').textContent=NM[nivel]||nivel;
+  // hide upsell if pro
+  if(plano==='pro')document.getElementById('d-upsell').style.display='none';
+  bpl('dpl',obj,999,true);
+  bt(obj);
+}
+function bt(obj){const l=document.getElementById('tkl');l.innerHTML='';(PR[obj]||[]).forEach(t=>{const d=document.createElement('div');d.className='t-task';d.onclick=function(){this.classList.toggle('dn');ua()};d.innerHTML=`<div class="t-ck"><svg width="9" height="9" fill="none" viewBox="0 0 9 9"><path d="M1.5 4.5l2 2L7.5 2" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="t-body"><div class="t-nm">${t.e} ${t.n}</div><div class="t-sub">${t.f}</div></div><div class="t-time">${t.v}</div>`;l.appendChild(d)})}
+function ua(){const dn=document.querySelectorAll('.t-task.dn').length,tot=document.querySelectorAll('.t-task').length,p=tot?Math.round((dn/tot)*100):0;document.getElementById('dbadesao').textContent=p+'%';document.getElementById('prga').textContent=p+'%';document.getElementById('pfa').style.width=p+'%'}
+let dd=0;function td(el){const d=el.classList.contains('w-done');if(el.classList.contains('w-today')&&!d){el.classList.add('w-done');el.textContent='✓';dd++}else if(d&&!el.classList.contains('w-today')){el.classList.remove('w-done');el.textContent='';dd--}else if(!d&&!el.classList.contains('w-today')){el.classList.add('w-done');el.textContent='✓';dd++}document.getElementById('adpct').textContent=dd+' / 7 dias'}
+function sc(el){document.querySelectorAll('#cks .c-b').forEach(b=>b.classList.remove('sel'));el.classList.add('sel')}
+function sck(btn){if(!document.querySelector('#cks .c-b.sel'))return;btn.textContent='✓ Registrado!';btn.style.background='rgba(202,246,236,.2)';btn.style.color='var(--green)';btn.disabled=true}
+function rst(){Object.keys(A).forEach(k=>delete A[k]);document.querySelectorAll('.opt,.tag,.sc-b').forEach(c=>c.classList.remove('sel'));document.querySelectorAll('[id^="b"]').forEach(b=>{if(b.tagName==='BUTTON')b.disabled=true});['ni','free-email','ess-email','pro-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});[...document.querySelectorAll('.code-input')].forEach(i=>{i.value='';i.classList.remove('filled');i.style.borderColor=''});cur=0;document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on','bye'));document.getElementById('s0').classList.add('on');up();window.scrollTo({top:0})}
+up();
+</script>
+</body>
+</html>
